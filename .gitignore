@@ -1,0 +1,7 @@
+# 공개 repo엔 index.html + data/data.enc 만 올린다. 나머지(키·생데이터·코드) 전부 제외.
+*
+!index.html
+!data/
+data/*
+!data/data.enc
+!.gitignore

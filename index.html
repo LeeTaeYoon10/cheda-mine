@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🧀 체다 통합 (API판)</title>
+<style>
+  :root { --line:#e5e7eb; --muted:#6b7280; --bg:#f8fafc; --head:#111827; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.5 Pretendard,system-ui,Segoe UI,sans-serif; color:#111827; background:var(--bg); }
+  header { padding:16px 20px; background:#fff; border-bottom:1px solid var(--line); display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  h1 { font-size:18px; margin:0; }
+  .meta { color:var(--muted); font-size:12px; }
+  .wrap { padding:18px 20px; }
+  table { width:100%; border-collapse:collapse; background:#fff; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  th,td { padding:10px 12px; text-align:right; border-bottom:1px solid var(--line); white-space:nowrap; }
+  th { background:var(--head); color:#fff; font-weight:600; font-size:12px; }
+  td.brand,th.brand { text-align:left; font-weight:700; }
+  tbody tr:hover { background:#f1f5f9; }
+  .sub { color:var(--muted); font-size:11px; }
+  .gap { color:#cbd5e1; }
+  .roas-good { color:#15803d; font-weight:700; }
+  .roas-bad { color:#b91c1c; font-weight:700; }
+  .sales { color:#1d4ed8; font-weight:600; }
+  .err { color:#b91c1c; font-size:11px; }
+  button { padding:6px 12px; border:1px solid var(--line); border-radius:8px; background:#fff; cursor:pointer; font:inherit; }
+  .tot td { border-top:2px solid var(--head); font-weight:700; background:#fafafa; }
+  #gate { position:fixed; inset:0; background:#0b1220; color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:9999; }
+  #gate input { padding:10px 14px; border-radius:8px; border:1px solid #334155; background:#111827; color:#fff; font-size:15px; width:260px; }
+  #gate button { background:#2563eb; color:#fff; border:none; padding:10px 20px; font-size:15px; }
+  #gate .t { font-size:20px; font-weight:700; }
+  #gate .s { font-size:12px; color:#94a3b8; }
+  #gate .e { font-size:12px; color:#f87171; min-height:16px; }
+</style>
+</head>
+<body>
+<div id="gate">
+  <div class="t">🧀 체다 통합 · API판</div>
+  <div class="s">비밀번호를 넣어 주세요. 데이터는 암호화돼 있고, 넣은 이 브라우저에서만 풀립니다.</div>
+  <input id="pw" type="password" placeholder="비밀번호" autofocus>
+  <button onclick="unlock()">열기</button>
+  <div class="e" id="gerr"></div>
+</div>
+
+<header>
+  <h1>🧀 체다 통합 <span class="meta">API판</span></h1>
+  <span class="meta" id="asof"></span>
+  <span style="margin-left:auto"></span>
+  <button onclick="load()">↻ 새로고침</button>
+  <button onclick="lock()">잠금</button>
+</header>
+<div class="wrap">
+  <table>
+    <thead><tr>
+      <th class="brand">브랜드</th>
+      <th>카페24</th><th>쿠팡</th><th>스토어</th><th>총매출</th>
+      <th>메타</th><th>구글</th><th>틱톡</th><th>GFA</th><th>총광고비</th>
+      <th>ROAS</th>
+    </tr></thead>
+    <tbody id="tb"></tbody>
+  </table>
+  <p class="meta" id="note"></p>
+</div>
+
+<script>
+const W = n => (n||n===0) ? Number(n).toLocaleString('ko-KR') : '<span class="gap">—</span>';
+const num = n => Number(n)||0;
+
+async function decryptBlob(pw, b64){
+  const raw = Uint8Array.from(atob(b64.trim()), c=>c.charCodeAt(0));
+  const salt = raw.slice(0,16), iv = raw.slice(16,28), ct = raw.slice(28);
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt, iterations:250000, hash:'SHA-256'}, base,
+    {name:'AES-GCM', length:256}, false, ['decrypt']);
+  const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, ct);
+  return JSON.parse(new TextDecoder().decode(pt));
+}
+
+async function getData(){
+  const pw = sessionStorage.getItem('cm_pw');
+  if(!pw) throw new Error('nopw');
+  const b64 = await (await fetch('data/data.enc?_='+Date.now())).text();
+  return await decryptBlob(pw, b64);
+}
+
+async function unlock(){
+  const pw = document.getElementById('pw').value;
+  sessionStorage.setItem('cm_pw', pw);
+  try { await getData(); document.getElementById('gate').style.display='none'; render(await getData()); }
+  catch(e){ sessionStorage.removeItem('cm_pw'); document.getElementById('gerr').textContent='비밀번호가 다릅니다'; }
+}
+function lock(){ sessionStorage.removeItem('cm_pw'); location.reload(); }
+
+function render(d){
+  document.getElementById('asof').textContent = `${d.date} · ${d.slot}시 기준 · 수집 ${(d.at||'').slice(11,16)}`;
+  const rows=[]; let T={sales:0,ad:0};
+  for(const bk of Object.keys(d.brands)){
+    const v=d.brands[bk];
+    const store = num(v.ss1Sales)+num(v.ss2Sales)+num(v.ss3Sales);
+    const sales = num(v.cafe24Sales)+num(v.coupang1Sales)+store;
+    const ad = num(v.meta)+num(v.google)+num(v.tiktok)+num(v.gfa);
+    const roas = ad? (sales/ad) : 0;
+    T.sales+=sales; T.ad+=ad;
+    const roasHtml = ad? `<span class="${roas>=1?'roas-good':'roas-bad'}">${roas.toFixed(2)}</span>` : '<span class="gap">—</span>';
+    rows.push(`<tr>
+      <td class="brand">${v.label}</td>
+      <td>${W(v.cafe24Sales)}<div class="sub">${v.cafe24Orders||0}건</div></td>
+      <td>${v.coupang1Sales? W(v.coupang1Sales):'<span class=gap>—</span>'}</td>
+      <td>${store? W(store):'<span class=gap>—</span>'}</td>
+      <td class="sales">${W(sales)}</td>
+      <td>${v.meta? W(v.meta):'<span class=gap>—</span>'}</td>
+      <td>${v.google? W(v.google):'<span class=gap>—</span>'}</td>
+      <td>${v.tiktok? W(v.tiktok):'<span class=gap>—</span>'}</td>
+      <td>${v.gfa? W(v.gfa):'<span class=gap>—</span>'}</td>
+      <td>${W(ad)}</td>
+      <td>${roasHtml}</td>
+    </tr>` + (v._errors&&v._errors.length? `<tr><td></td><td colspan=10 class="err">⚠ ${v._errors.join(' · ')}</td></tr>`:''));
+  }
+  const troas = T.ad? (T.sales/T.ad).toFixed(2) : '—';
+  rows.push(`<tr class="tot"><td class="brand">합계</td><td colspan=3></td><td class="sales">${W(T.sales)}</td><td colspan=4></td><td>${W(T.ad)}</td><td>${troas}</td></tr>`);
+  document.getElementById('tb').innerHTML = rows.join('');
+  document.getElementById('note').textContent = '— = 아직 API 키 미연결(빠진키 단계). 전 수치 당일 실시간 실호출.';
+}
+
+async function load(){
+  try { render(await getData()); }
+  catch(e){ if(String(e.message)==='nopw'){ document.getElementById('gate').style.display='flex'; } }
+}
+document.getElementById('pw').addEventListener('keydown', e=>{ if(e.key==='Enter') unlock(); });
+if(sessionStorage.getItem('cm_pw')){ document.getElementById('gate').style.display='none'; load(); }
+setInterval(load, 5*60*1000);
+</script>
+</body>
+</html>
