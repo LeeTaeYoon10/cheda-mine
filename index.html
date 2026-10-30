@@ -117,7 +117,7 @@ function render(d){
       <td>${v.gfa? W(v.gfa):'<span class=gap>—</span>'}</td>
       <td>${W(ad)}</td>
       <td>${roasHtml}</td>
-      <td><button onclick="sendBrand('${bk}')" title="이 브랜드 리포트를 #커머스-체다로 전송">전송</button></td>
+      <td><button onclick="sendBrand('${bk}')" title="이 브랜드 리포트를 해당 지표방으로 전송">전송</button></td>
     </tr>` + (v._errors&&v._errors.length? `<tr><td></td><td colspan=11 class="err">⚠ ${v._errors.join(' · ')}</td></tr>`:''));
   }
   const troas = T.ad? (T.sales/T.ad).toFixed(2) : '—';
@@ -151,14 +151,22 @@ function reportText(bk){
   L.push('',`•   매출 ${WW(sales)} / ${orders}`,`    ◦   자사몰 ${WW(cafe)} / ${cafeN}`,`    ◦   쿠팡 ${WW(cp)} / ${cpN}`,`    ◦   스마트스토어 ${WW(ss)} / ${ssN}`,'',`•   ROAS ${roas}% / CPA ${WW(cpa)}`,`•   객단가 ${WW(aov)}`,`•   결제 비율 (자사몰 ${jasa}% / 외 ${oe}%)`);
   return L.join('\n');
 }
-async function sendSlack(text){
-  const wh = CURRENT && CURRENT._slack && CURRENT._slack.webhook;
-  if(!wh){ toast('슬랙 webhook 없음'); return false; }
-  try{ await fetch(wh,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'payload='+encodeURIComponent(JSON.stringify({text}))}); return true; }
-  catch(e){ return false; }
+async function sendBrand(bk){
+  const s = CURRENT && CURRENT._slack;
+  if(!s || !s.botToken){ toast('슬랙 설정 없음'); return false; }
+  const ch = s.channels && s.channels[bk];
+  if(!ch){ toast(`${CURRENT.brands[bk].label} 지표방 미설정`); return false; }
+  const body = new URLSearchParams({token:s.botToken, channel:ch, text:reportText(bk), username:s.username||'실시간 성과 알림 봇', icon_emoji:':bar_chart:'});
+  try{ await fetch('https://slack.com/api/chat.postMessage',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()}); toast(`${CURRENT.brands[bk].label} 지표방 전송`); return true; }
+  catch(e){ toast('전송 실패'); return false; }
 }
-async function sendBrand(bk){ const ok=await sendSlack(reportText(bk)); toast(ok?`${CURRENT.brands[bk].label} 전송 (#커머스-체다)`:'전송 실패'); }
-async function sendAll(){ for(const bk of Object.keys(CURRENT.brands)){ await sendSlack(reportText(bk)); await new Promise(r=>setTimeout(r,400)); } toast('전체 전송 (#커머스-체다)'); }
+async function sendAll(){
+  let n=0;
+  for(const bk of Object.keys(CURRENT.brands)){
+    if(CURRENT._slack && CURRENT._slack.channels && CURRENT._slack.channels[bk]){ await sendBrand(bk); n++; await new Promise(r=>setTimeout(r,500)); }
+  }
+  toast(`전체 지표방 전송 완료 (${n})`);
+}
 function toast(msg){ let t=document.getElementById('cmtoast'); if(!t){t=document.createElement('div');t.id='cmtoast';t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;z-index:9999;box-shadow:0 4px 16px #0005';document.body.appendChild(t);} t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',3000); }
 
 async function load(){
