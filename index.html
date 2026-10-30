@@ -46,6 +46,7 @@
   <h1>🧀 체다 통합 <span class="meta">API판</span></h1>
   <span class="meta" id="asof"></span>
   <span style="margin-left:auto"></span>
+  <button onclick="sendAll()">📤 전체 Slack 전송</button>
   <button onclick="load()">↻ 새로고침</button>
   <button onclick="lock()">잠금</button>
 </header>
@@ -55,7 +56,7 @@
       <th class="brand">브랜드</th>
       <th>카페24</th><th>쿠팡</th><th>스토어</th><th>총매출</th>
       <th>메타</th><th>구글</th><th>틱톡</th><th>GFA</th><th>총광고비</th>
-      <th>ROAS</th>
+      <th>ROAS</th><th>전송</th>
     </tr></thead>
     <tbody id="tb"></tbody>
   </table>
@@ -93,6 +94,7 @@ async function unlock(){
 function lock(){ sessionStorage.removeItem('cm_pw'); location.reload(); }
 
 function render(d){
+  CURRENT = d;
   document.getElementById('asof').textContent = `${d.date} · ${d.slot}시 기준 · 수집 ${(d.at||'').slice(11,16)}`;
   const rows=[]; let T={sales:0,ad:0};
   for(const bk of Object.keys(d.brands)){
@@ -115,13 +117,49 @@ function render(d){
       <td>${v.gfa? W(v.gfa):'<span class=gap>—</span>'}</td>
       <td>${W(ad)}</td>
       <td>${roasHtml}</td>
-    </tr>` + (v._errors&&v._errors.length? `<tr><td></td><td colspan=10 class="err">⚠ ${v._errors.join(' · ')}</td></tr>`:''));
+      <td><button onclick="sendBrand('${bk}')" title="이 브랜드 리포트를 #커머스-체다로 전송">전송</button></td>
+    </tr>` + (v._errors&&v._errors.length? `<tr><td></td><td colspan=11 class="err">⚠ ${v._errors.join(' · ')}</td></tr>`:''));
   }
   const troas = T.ad? (T.sales/T.ad).toFixed(2) : '—';
-  rows.push(`<tr class="tot"><td class="brand">합계</td><td colspan=3></td><td class="sales">${W(T.sales)}</td><td colspan=4></td><td>${W(T.ad)}</td><td>${troas}</td></tr>`);
+  rows.push(`<tr class="tot"><td class="brand">합계</td><td colspan=3></td><td class="sales">${W(T.sales)}</td><td colspan=4></td><td>${W(T.ad)}</td><td>${troas}</td><td></td></tr>`);
   document.getElementById('tb').innerHTML = rows.join('');
   document.getElementById('note').textContent = '— = 아직 API 키 미연결(빠진키 단계). 전 수치 당일 실시간 실호출.';
 }
+
+// ───── 슬랙 리포트 전송 ─────
+let CURRENT = null;
+const WD = ['월','화','수','목','금','토','일'];
+const AD_CH = {
+  graniesalad: [['meta','메타'],['google','구글'],['tiktok','틱톡']],
+  basetune:    [['meta','메타'],['google','구글'],['tiktok','틱톡'],['gfa','GFA']],
+  hattke:      [['meta','메타'],['google','구글'],['tiktok','틱톡']],
+  salagris:    [['meta','메타']],
+};
+function reportText(bk){
+  const d = CURRENT, v = d.brands[bk];
+  const dt = new Date(d.date+'T12:00:00');
+  const wd = WD[(dt.getDay()+6)%7];
+  const hdr = `[${v.label}] ${d.date.slice(2).replace(/-/g,'/')} (${wd}) ${String(d.slot).padStart(2,'0')}:00`;
+  const nn = x => Number(x)||0, WW = x => nn(x).toLocaleString('ko-KR');
+  const ad = nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa);
+  const cafe=nn(v.cafe24Sales),cafeN=nn(v.cafe24Orders),cp=nn(v.coupang1Sales),cpN=nn(v.coupang1Orders),ss=nn(v.ss1Sales),ssN=nn(v.ss1Orders);
+  const sales=cafe+cp+ss, orders=cafeN+cpN+ssN;
+  const roas=ad?Math.round(sales/ad*100):0, cpa=orders?Math.round(ad/orders):0, aov=orders?Math.round(sales/orders):0;
+  const jasa=orders?Math.round(cafeN/orders*1000)/10:0, oe=orders?Math.round((100-jasa)*10)/10:0;
+  const L=[hdr,'',`•   광고비 ${WW(ad)}`];
+  (AD_CH[bk]||[]).forEach(([k,lab])=>L.push(`    ◦   ${lab} ${WW(v[k])}`));
+  L.push('',`•   매출 ${WW(sales)} / ${orders}`,`    ◦   자사몰 ${WW(cafe)} / ${cafeN}`,`    ◦   쿠팡 ${WW(cp)} / ${cpN}`,`    ◦   스마트스토어 ${WW(ss)} / ${ssN}`,'',`•   ROAS ${roas}% / CPA ${WW(cpa)}`,`•   객단가 ${WW(aov)}`,`•   결제 비율 (자사몰 ${jasa}% / 외 ${oe}%)`);
+  return L.join('\n');
+}
+async function sendSlack(text){
+  const wh = CURRENT && CURRENT._slack && CURRENT._slack.webhook;
+  if(!wh){ toast('슬랙 webhook 없음'); return false; }
+  try{ await fetch(wh,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'payload='+encodeURIComponent(JSON.stringify({text}))}); return true; }
+  catch(e){ return false; }
+}
+async function sendBrand(bk){ const ok=await sendSlack(reportText(bk)); toast(ok?`${CURRENT.brands[bk].label} 전송 (#커머스-체다)`:'전송 실패'); }
+async function sendAll(){ for(const bk of Object.keys(CURRENT.brands)){ await sendSlack(reportText(bk)); await new Promise(r=>setTimeout(r,400)); } toast('전체 전송 (#커머스-체다)'); }
+function toast(msg){ let t=document.getElementById('cmtoast'); if(!t){t=document.createElement('div');t.id='cmtoast';t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;z-index:9999;box-shadow:0 4px 16px #0005';document.body.appendChild(t);} t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',3000); }
 
 async function load(){
   try { render(await getData()); }
