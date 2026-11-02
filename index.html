@@ -25,6 +25,9 @@
   .err { color:#b91c1c; font-size:11px; }
   button { padding:6px 12px; border:1px solid var(--line); border-radius:8px; background:#fff; cursor:pointer; font:inherit; }
   .tot td { border-top:2px solid var(--head); font-weight:700; background:#fafafa; }
+  .num-edit { cursor:text; outline:none; }
+  .num-edit:hover { background:#eff6ff; border-radius:4px; }
+  .num-edit:focus { background:#dbeafe; border-radius:4px; box-shadow:0 0 0 2px #3b82f6; }
   #gate { position:fixed; inset:0; background:#0b1220; color:#fff; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; z-index:9999; }
   #gate input { padding:10px 14px; border-radius:8px; border:1px solid #334155; background:#111827; color:#fff; font-size:15px; width:260px; }
   #gate button { background:#2563eb; color:#fff; border:none; padding:10px 20px; font-size:15px; }
@@ -93,7 +96,31 @@ async function unlock(){
 }
 function lock(){ sessionStorage.removeItem('cm_pw'); location.reload(); }
 
+let USER_EDITS = {}; // 사용자 수정값 유지 {bk: {field: number}}
+function applyUserEdits(brands){
+  for(const [bk,fields] of Object.entries(USER_EDITS)){
+    if(!brands[bk]) continue;
+    for(const [f,v] of Object.entries(fields)) brands[bk][f]=v;
+  }
+}
+function recalcRow(bk){
+  const v=CURRENT.brands[bk];
+  const nn=x=>Number(x)||0;
+  const sales=nn(v.cafe24Sales)+nn(v.coupang1Sales)+nn(v.ss1Sales)+nn(v.ss2Sales||0)+nn(v.ss3Sales||0);
+  const ad=nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
+  const roas=ad?(sales/ad):0;
+  const si=document.getElementById('rs-'+bk), ai=document.getElementById('ra-'+bk), ri=document.getElementById('rr-'+bk);
+  if(si) si.textContent=sales.toLocaleString('ko-KR');
+  if(ai) ai.textContent=ad.toLocaleString('ko-KR');
+  if(ri) ri.innerHTML=ad?`<span class="${roas>=1?'roas-good':'roas-bad'}">${roas.toFixed(2)}</span>`:'<span class="gap">—</span>';
+  const ta=document.getElementById('edit-'+bk);
+  if(ta){ ta.value=reportText(bk); ta.dataset.edited='1'; }
+}
+function EC(bk,field,val){
+  return `<td class="num-edit" contenteditable="true" data-bk="${bk}" data-field="${field}" title="클릭해서 수정">${val?val.toLocaleString('ko-KR'):'0'}</td>`;
+}
 function render(d){
+  applyUserEdits(d.brands);
   CURRENT = d;
   document.getElementById('asof').textContent = `${d.date} · ${d.slot}시 기준 · 수집 ${(d.at||'').slice(11,16)}`;
   const rows=[]; let T={sales:0,ad:0};
@@ -107,18 +134,18 @@ function render(d){
     const roasHtml = ad? `<span class="${roas>=1?'roas-good':'roas-bad'}">${roas.toFixed(2)}</span>` : '<span class="gap">—</span>';
     rows.push(`<tr>
       <td class="brand">${v.label}</td>
-      <td>${W(v.cafe24Sales)}<div class="sub">${v.cafe24Orders||0}건</div></td>
-      <td>${v.coupang1Sales? W(v.coupang1Sales):'<span class=gap>—</span>'}</td>
+      ${EC(bk,'cafe24Sales',v.cafe24Sales)}
+      ${EC(bk,'coupang1Sales',v.coupang1Sales)}
       <td>${store? W(store):'<span class=gap>—</span>'}</td>
-      <td class="sales">${W(sales)}</td>
-      <td>${v.meta? W(v.meta):'<span class=gap>—</span>'}</td>
-      <td>${v.google? W(v.google):'<span class=gap>—</span>'}</td>
-      <td>${v.tiktok? W(v.tiktok):'<span class=gap>—</span>'}</td>
-      <td>${v.gfa? W(v.gfa):'<span class=gap>—</span>'}</td>
-      <td>${v.kakao? W(v.kakao):'<span class=gap>—</span>'}</td>
-      <td>${v.naversa? W(v.naversa):'<span class=gap>—</span>'}</td>
-      <td>${W(ad)}</td>
-      <td>${roasHtml}</td>
+      <td class="sales" id="rs-${bk}">${W(sales)}</td>
+      ${EC(bk,'meta',v.meta)}
+      ${EC(bk,'google',v.google)}
+      ${EC(bk,'tiktok',v.tiktok)}
+      ${EC(bk,'gfa',v.gfa)}
+      ${EC(bk,'kakao',v.kakao)}
+      ${EC(bk,'naversa',v.naversa)}
+      <td id="ra-${bk}">${W(ad)}</td>
+      <td id="rr-${bk}">${roasHtml}</td>
       <td><button onclick="sendBrand('${bk}')" title="이 브랜드 리포트를 해당 지표방으로 전송">전송</button></td>
     </tr>
     <tr class="edit-row"><td colspan=14 style="padding:0 0 10px 0;">
@@ -188,9 +215,25 @@ async function sendAll(){
   }
   toast(`전체 전송 완료 (${n})`);
 }
-// 사용자가 편집창 수정하면 수동수정 플래그(다음 자동갱신 시 덮어쓰기 방지)
+// 테이블 셀 숫자 직접 수정
 document.addEventListener('input', e=>{
+  const td=e.target.closest&&e.target.closest('[data-field]');
+  if(td&&td.contentEditable==='true'){
+    const bk=td.dataset.bk, field=td.dataset.field;
+    const raw=parseInt((td.innerText||'').replace(/[^0-9]/g,''))||0;
+    if(!USER_EDITS[bk]) USER_EDITS[bk]={};
+    USER_EDITS[bk][field]=raw;
+    CURRENT.brands[bk][field]=raw;
+    recalcRow(bk);
+  }
+  // textarea 수동수정 플래그
   if(e.target&&e.target.id&&e.target.id.startsWith('edit-')) e.target.dataset.edited='1';
+});
+// 셀에서 Enter키 → 다음 셀로 포커스(줄바꿈 방지)
+document.addEventListener('keydown', e=>{
+  if(e.key==='Enter'&&e.target.closest&&e.target.closest('[data-field]')){
+    e.preventDefault(); e.target.blur();
+  }
 });
 function toast(msg){ let t=document.getElementById('cmtoast'); if(!t){t=document.createElement('div');t.id='cmtoast';t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;z-index:9999;box-shadow:0 4px 16px #0005';document.body.appendChild(t);} t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',3000); }
 
