@@ -127,12 +127,20 @@ function render(d){
   }
   const troas = T.ad? (T.sales/T.ad).toFixed(2) : '—';
   rows.push(`<tr class="tot"><td class="brand">합계</td><td colspan=3></td><td class="sales">${W(T.sales)}</td><td colspan=5></td><td>${W(T.ad)}</td><td>${troas}</td><td></td></tr>`);
-  document.getElementById('tb').innerHTML = rows.join('');
-  document.getElementById('note').textContent = '— = 아직 API 키 미연결(빠진키 단계). 전 수치 당일 실시간 실호출.';
-  // 편집창 채우기 — 사용자가 직접 수정한 경우는 덮어쓰지 않음
+  // 렌더 전 사용자 수정값 보존
+  const savedEdits={};
   for(const bk of Object.keys(d.brands)){
     const ta=document.getElementById('edit-'+bk);
-    if(ta && !ta.dataset.edited) ta.value=reportText(bk);
+    if(ta && ta.dataset.edited) savedEdits[bk]=ta.value;
+  }
+  document.getElementById('tb').innerHTML = rows.join('');
+  document.getElementById('note').textContent = '— = 아직 API 키 미연결. 수치는 하단 편집창에서 바로 수정 가능.';
+  // 편집창 채우기 — 저장된 수정값 우선 복원, 없으면 자동생성
+  for(const bk of Object.keys(d.brands)){
+    const ta=document.getElementById('edit-'+bk);
+    if(!ta) continue;
+    if(savedEdits[bk]!==undefined){ ta.value=savedEdits[bk]; ta.dataset.edited='1'; }
+    else ta.value=reportText(bk);
   }
 }
 
