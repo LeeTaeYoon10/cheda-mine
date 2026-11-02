@@ -55,7 +55,7 @@
     <thead><tr>
       <th class="brand">브랜드</th>
       <th>카페24</th><th>쿠팡</th><th>스토어</th><th>총매출</th>
-      <th>메타</th><th>구글</th><th>틱톡</th><th>GFA</th><th>카카오</th><th>총광고비</th>
+      <th>메타</th><th>구글</th><th>틱톡</th><th>GFA</th><th>카카오</th><th>네이버SA</th><th>총광고비</th>
       <th>ROAS</th><th>전송</th>
     </tr></thead>
     <tbody id="tb"></tbody>
@@ -101,7 +101,7 @@ function render(d){
     const v=d.brands[bk];
     const store = num(v.ss1Sales)+num(v.ss2Sales)+num(v.ss3Sales);
     const sales = num(v.cafe24Sales)+num(v.coupang1Sales)+store;
-    const ad = num(v.meta)+num(v.google)+num(v.tiktok)+num(v.gfa)+num(v.kakao);
+    const ad = num(v.meta)+num(v.google)+num(v.tiktok)+num(v.gfa)+num(v.kakao)+num(v.naversa);
     const roas = ad? (sales/ad) : 0;
     T.sales+=sales; T.ad+=ad;
     const roasHtml = ad? `<span class="${roas>=1?'roas-good':'roas-bad'}">${roas.toFixed(2)}</span>` : '<span class="gap">—</span>';
@@ -116,6 +116,7 @@ function render(d){
       <td>${v.tiktok? W(v.tiktok):'<span class=gap>—</span>'}</td>
       <td>${v.gfa? W(v.gfa):'<span class=gap>—</span>'}</td>
       <td>${v.kakao? W(v.kakao):'<span class=gap>—</span>'}</td>
+      <td>${v.naversa? W(v.naversa):'<span class=gap>—</span>'}</td>
       <td>${W(ad)}</td>
       <td>${roasHtml}</td>
       <td><button onclick="sendBrand('${bk}')" title="이 브랜드 리포트를 해당 지표방으로 전송">전송</button></td>
@@ -133,7 +134,7 @@ const WD = ['월','화','수','목','금','토','일'];
 const AD_CH = {
   graniesalad: [['meta','메타'],['google','구글'],['tiktok','틱톡']],
   basetune:    [['meta','메타'],['google','구글'],['tiktok','틱톡'],['gfa','GFA']],
-  hattke:      [['meta','메타'],['google','구글'],['tiktok','틱톡'],['gfa','GFA'],['kakao','카카오']],
+  hattke:      [['meta','메타'],['google','구글'],['tiktok','틱톡'],['gfa','GFA'],['kakao','카카오'],['naversa','네이버SA']],
   salagris:    [['meta','메타'],['google','구글'],['tiktok','틱톡']],
 };
 function reportText(bk){
@@ -142,7 +143,7 @@ function reportText(bk){
   const wd = WD[(dt.getDay()+6)%7];
   const hdr = `[${v.label}] ${d.date.slice(2).replace(/-/g,'/')} (${wd}) ${String(d.slot).padStart(2,'0')}:00`;
   const nn = x => Number(x)||0, WW = x => nn(x).toLocaleString('ko-KR');
-  const ad = nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao);
+  const ad = nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
   const cafe=nn(v.cafe24Sales),cafeN=nn(v.cafe24Orders),cp=nn(v.coupang1Sales),cpN=nn(v.coupang1Orders),ss=nn(v.ss1Sales),ssN=nn(v.ss1Orders);
   const sales=cafe+cp+ss, orders=cafeN+cpN+ssN;
   const roas=ad?Math.round(sales/ad*100):0, cpa=orders?Math.round(ad/orders):0, aov=orders?Math.round(sales/orders):0;
