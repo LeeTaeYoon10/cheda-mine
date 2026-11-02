@@ -120,12 +120,20 @@ function render(d){
       <td>${W(ad)}</td>
       <td>${roasHtml}</td>
       <td><button onclick="sendBrand('${bk}')" title="이 브랜드 리포트를 해당 지표방으로 전송">전송</button></td>
-    </tr>` + (v._errors&&v._errors.length? `<tr><td></td><td colspan=12 class="err">⚠ ${v._errors.join(' · ')}</td></tr>`:''));
+    </tr>
+    <tr class="edit-row"><td colspan=14 style="padding:0 0 10px 0;">
+      <textarea id="edit-${bk}" style="width:100%;min-height:180px;font-family:monospace;font-size:12.5px;border:1px solid #e5e7eb;border-radius:8px;padding:10px;box-sizing:border-box;resize:vertical;line-height:1.65;background:#fafafa;color:#111;" placeholder="로딩 중…"></textarea>
+    </td></tr>` + (v._errors&&v._errors.length? `<tr><td></td><td colspan=12 class="err">⚠ ${v._errors.join(' · ')}</td></tr>`:''));
   }
   const troas = T.ad? (T.sales/T.ad).toFixed(2) : '—';
   rows.push(`<tr class="tot"><td class="brand">합계</td><td colspan=3></td><td class="sales">${W(T.sales)}</td><td colspan=5></td><td>${W(T.ad)}</td><td>${troas}</td><td></td></tr>`);
   document.getElementById('tb').innerHTML = rows.join('');
   document.getElementById('note').textContent = '— = 아직 API 키 미연결(빠진키 단계). 전 수치 당일 실시간 실호출.';
+  // 편집창 채우기 — 사용자가 직접 수정한 경우는 덮어쓰지 않음
+  for(const bk of Object.keys(d.brands)){
+    const ta=document.getElementById('edit-'+bk);
+    if(ta && !ta.dataset.edited) ta.value=reportText(bk);
+  }
 }
 
 // ───── 슬랙 리포트 전송 ─────
@@ -153,47 +161,29 @@ function reportText(bk){
   L.push('',`•   매출 ${WW(sales)} / ${orders}`,`    ◦   자사몰 ${WW(cafe)} / ${cafeN}`,`    ◦   쿠팡 ${WW(cp)} / ${cpN}`,`    ◦   스마트스토어 ${WW(ss)} / ${ssN}`,'',`•   ROAS ${roas}% / CPA ${WW(cpa)}`,`•   객단가 ${WW(aov)}`,`•   결제 비율 (자사몰 ${jasa}% / 외 ${oe}%)`);
   return L.join('\n');
 }
-/* ── 편집 팝업 ── */
-function showEditModal(bk){
-  const s=CURRENT&&CURRENT._slack; if(!s||!s.botToken){toast('슬랙 설정 없음');return;}
-  const ch=s.channels&&s.channels[bk]; if(!ch){toast('지표방 미설정');return;}
-  let m=document.getElementById('cm-modal');
-  if(!m){
-    m=document.createElement('div'); m.id='cm-modal';
-    m.style.cssText='display:none;position:fixed;inset:0;background:#0007;z-index:10000;align-items:center;justify-content:center;';
-    m.innerHTML=`<div style="background:#fff;border-radius:14px;padding:24px;width:min(560px,95vw);box-shadow:0 8px 32px #0004;display:flex;flex-direction:column;gap:12px;">
-      <div style="font-weight:700;font-size:15px;" id="cm-modal-title">리포트 수정 후 전송</div>
-      <textarea id="cm-modal-ta" style="width:100%;height:320px;font-size:13px;font-family:monospace;border:1px solid #d1d5db;border-radius:8px;padding:10px;resize:vertical;box-sizing:border-box;line-height:1.6;"></textarea>
-      <div style="display:flex;gap:8px;justify-content:flex-end;">
-        <button onclick="document.getElementById('cm-modal').style.display='none'" style="padding:8px 18px;border:1px solid #d1d5db;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;">취소</button>
-        <button id="cm-modal-send" style="padding:8px 22px;border:none;border-radius:8px;background:#2563eb;color:#fff;cursor:pointer;font-size:13px;font-weight:600;">전송</button>
-      </div>
-    </div>`;
-    document.body.appendChild(m);
-  }
-  document.getElementById('cm-modal-title').textContent=`[${CURRENT.brands[bk].label}] 수정 후 전송`;
-  document.getElementById('cm-modal-ta').value=reportText(bk);
-  m.style.display='flex';
-  const btn=document.getElementById('cm-modal-send');
-  btn.onclick=async()=>{
-    const text=document.getElementById('cm-modal-ta').value.trim();
-    if(!text)return;
-    btn.disabled=true; btn.textContent='전송 중…';
-    const body=new URLSearchParams({token:s.botToken,channel:ch,text,username:s.username||'실시간 성과 알림 봇',icon_emoji:':bar_chart:'});
-    try{
-      await fetch('https://slack.com/api/chat.postMessage',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
-      m.style.display='none'; toast(`${CURRENT.brands[bk].label} 전송 완료`);
-    }catch(e){ toast('전송 실패'); }
-    btn.disabled=false; btn.textContent='전송';
-  };
+async function sendBrand(bk){
+  const s=CURRENT&&CURRENT._slack; if(!s||!s.botToken){toast('슬랙 설정 없음');return false;}
+  const ch=s.channels&&s.channels[bk]; if(!ch){toast('지표방 미설정');return false;}
+  const ta=document.getElementById('edit-'+bk);
+  const text=(ta?ta.value:reportText(bk)).trim();
+  if(!text)return false;
+  const body=new URLSearchParams({token:s.botToken,channel:ch,text,username:s.username||'실시간 성과 알림 봇',icon_emoji:':bar_chart:'});
+  try{
+    await fetch('https://slack.com/api/chat.postMessage',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
+    toast(`${CURRENT.brands[bk].label} 전송 완료`); return true;
+  }catch(e){ toast('전송 실패'); return false; }
 }
-async function sendBrand(bk){ showEditModal(bk); }
 async function sendAll(){
   let n=0;
   for(const bk of Object.keys(CURRENT.brands)){
-    if(CURRENT._slack && CURRENT._slack.channels && CURRENT._slack.channels[bk]){ await sendBrand(bk); n++; await new Promise(r=>setTimeout(r,500)); }
+    if(CURRENT._slack&&CURRENT._slack.channels&&CURRENT._slack.channels[bk]){ await sendBrand(bk); n++; await new Promise(r=>setTimeout(r,2000)); }
   }
+  toast(`전체 전송 완료 (${n})`);
 }
+// 사용자가 편집창 수정하면 수동수정 플래그(다음 자동갱신 시 덮어쓰기 방지)
+document.addEventListener('input', e=>{
+  if(e.target&&e.target.id&&e.target.id.startsWith('edit-')) e.target.dataset.edited='1';
+});
 function toast(msg){ let t=document.getElementById('cmtoast'); if(!t){t=document.createElement('div');t.id='cmtoast';t.style.cssText='position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 18px;border-radius:10px;font-size:13px;z-index:9999;box-shadow:0 4px 16px #0005';document.body.appendChild(t);} t.textContent=msg; t.style.display='block'; clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',3000); }
 
 async function load(){
