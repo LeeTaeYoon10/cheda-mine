@@ -43,7 +43,9 @@ header .asof{font-size:12px;color:#9ca3af;margin-top:4px}
 [contenteditable]{cursor:text;outline:none;border-radius:4px;padding:1px 4px;min-width:30px;display:inline-block;text-align:right}
 [contenteditable]:hover{background:#eff6ff}
 [contenteditable]:focus{background:#dbeafe;box-shadow:0 0 0 2px #3b82f6}
-.ref-edit-row [contenteditable]{min-width:80px;border:1px solid #fcd34d;background:#fffbeb;padding:2px 6px;border-radius:6px;font-size:13px}
+.ref-input{border:1px solid #fcd34d;border-radius:6px;padding:3px 8px;font-size:13px;text-align:right;width:110px;background:#fffbeb;font-family:inherit;outline:none;color:#111}
+.ref-input:focus{border-color:#f59e0b;box-shadow:0 0 0 2px #fef3c7}
+.total-ref{color:#dc2626;font-weight:700}
 
 .preview-wrap{margin-top:14px;padding-top:12px;border-top:1px solid #f3f4f6}
 .preview-label{font-size:11px;color:#9ca3af;margin-bottom:6px;font-weight:600;letter-spacing:.03em}
@@ -167,10 +169,13 @@ function buildMsg(bk){
     `    ◦   쿠팡 ${WW(cp)} / ${cpN}건`,
     `    ◦   스마트스토어 ${WW(ss)} / ${ssN}건`);
   if(hasRef){
+    const totalRef=cafeRef+cpRef+ssRef;
+    const totalRefN=totalRef?Math.round(totalRef/refAov):0;
     L.push('',`•   매출 ${WW(salesA)} / ${orders}건 (환불 후)`,
       `    ◦   자사몰 ${WW(cafe2)} / ${cafeN}건 (환불 ${WW(cafeRef)}원 / 예상 ${cafeRefN}건)`,
       `    ◦   쿠팡 ${WW(cp2)} / ${cpN}건 (환불 ${WW(cpRef)}원 / 예상 ${cpRefN}건)`,
-      `    ◦   스마트스토어 ${WW(ss)} / ${ssN}건 (환불 ${WW(ssRef)}원 / 예상 ${ssRefN}건)`);
+      `    ◦   스마트스토어 ${WW(ss2)} / ${ssN}건 (환불 ${WW(ssRef)}원 / 예상 ${ssRefN}건)`,
+      `    ◦   총 환불 ${WW(totalRef)}원 / 예상 ${totalRefN}건`);
   }
   L.push('',
     `•   ROAS ${roasB}% (환불 전) / ${roasA}% (환불 후) / CPA ${WW(cpa)}`,
@@ -182,6 +187,10 @@ function buildMsg(bk){
 // ───── 렌더 ─────
 function E(bk,field,val){
   return `<span contenteditable="true" data-bk="${bk}" data-field="${field}">${W(val)}</span>`;
+}
+// 환불 전용 input — 쉼표 없는 순수 숫자, 쉼표 파싱 버그 없음
+function ERef(bk,field,val){
+  return `<input type="text" inputmode="numeric" class="ref-input" data-bk="${bk}" data-field="${field}" value="${nn(val)}">`;
 }
 
 function render(d){
@@ -218,15 +227,18 @@ function render(d){
     const adSubs=(AD_CH[bk]||[]).map(([k,lab])=>`
       <div class="sub"><span class="lbl">◦ ${lab}</span><span class="val">${E(bk,k,v[k]||0)}</span></div>`).join('');
 
+    const totalRef=cafeRef+cpRef+ssRef;
+    const totalRefN=totalRef?Math.round(totalRef/refAov):0;
     const refSection=`
       <div class="div"></div>
       <div class="row"><span class="lbl">• 매출 (환불 후)</span><span class="val" id="salesA-${bk}">${W(salesA)}</span></div>
       <div class="sub"><span class="lbl">◦ 자사몰 순매출</span><span class="val" id="cafe2-${bk}">${W(cafe2)}</span></div>
-      <div class="sub ref-edit-row"><span class="lbl" style="color:#d97706">  └ 환불금액</span><span class="val">${E(bk,'cafe24Refund',cafeRef)} 원 <span class="ref-info">/ 예상 <span id="cafeRefN-${bk}">${cafeRefN}</span>건</span></span></div>
+      <div class="sub"><span class="lbl" style="color:#d97706">  └ 환불</span><span class="val">${ERef(bk,'cafe24Refund',cafeRef)} <span class="ref-info">/ 예상 <span id="cafeRefN-${bk}">${cafeRefN}</span>건</span></span></div>
       <div class="sub"><span class="lbl">◦ 쿠팡 순매출</span><span class="val" id="cp2-${bk}">${W(cp2)}</span></div>
-      <div class="sub ref-edit-row"><span class="lbl" style="color:#d97706">  └ 환불금액</span><span class="val">${E(bk,'coupang1Refund',cpRef)} 원 <span class="ref-info">/ 예상 <span id="cpRefN-${bk}">${cpRefN}</span>건</span></span></div>
-      <div class="sub"><span class="lbl">◦ 스마트스토어 순매출</span><span class="val" id="ss2-${bk}">${W(ss)}</span></div>
-      <div class="sub ref-edit-row"><span class="lbl" style="color:#d97706">  └ 환불금액</span><span class="val">${E(bk,'ss1Refund',ssRef)} 원 <span class="ref-info">/ 예상 <span id="ssRefN-${bk}">${ssRefN}</span>건</span></span></div>`;
+      <div class="sub"><span class="lbl" style="color:#d97706">  └ 환불</span><span class="val">${ERef(bk,'coupang1Refund',cpRef)} <span class="ref-info">/ 예상 <span id="cpRefN-${bk}">${cpRefN}</span>건</span></span></div>
+      <div class="sub"><span class="lbl">◦ 스마트스토어 순매출</span><span class="val" id="ss2-${bk}">${W(ss2)}</span></div>
+      <div class="sub"><span class="lbl" style="color:#d97706">  └ 환불</span><span class="val">${ERef(bk,'ss1Refund',ssRef)} <span class="ref-info">/ 예상 <span id="ssRefN-${bk}">${ssRefN}</span>건</span></span></div>
+      <div class="sub"><span class="lbl total-ref">◦ 총 환불합계</span><span class="val total-ref" id="totalRef-${bk}">${W(totalRef)} 원 / 예상 ${totalRefN}건</span></div>`;
 
     const card=document.createElement('div');
     card.className='card'; card.id='card-'+bk;
@@ -274,11 +286,23 @@ document.addEventListener('blur',e=>{
   el.textContent=W(raw);
 },true);
 
+// contenteditable (광고비·매출)
 document.addEventListener('input',e=>{
   const el=e.target.closest('[data-field]');
   if(!el||el.contentEditable!=='true') return;
   const bk=el.dataset.bk,field=el.dataset.field;
   const raw=parseInt((el.innerText||'').replace(/[^0-9]/g,''))||0;
+  if(!CURRENT||!CURRENT.brands[bk]) return;
+  CURRENT.brands[bk][field]=raw;
+  recalc(bk);
+});
+
+// input[type=text] 환불 필드
+document.addEventListener('input',e=>{
+  const el=e.target.closest('.ref-input[data-field]');
+  if(!el) return;
+  const bk=el.dataset.bk,field=el.dataset.field;
+  const raw=parseInt((el.value||'').replace(/[^0-9]/g,''))||0;
   if(!CURRENT||!CURRENT.brands[bk]) return;
   CURRENT.brands[bk][field]=raw;
   recalc(bk);
@@ -306,6 +330,9 @@ function recalc(bk){
   set('cafeRefN-'+bk, cafeRef?Math.round(cafeRef/refAov):0);
   set('cpRefN-'+bk,   cpRef?Math.round(cpRef/refAov):0);
   set('ssRefN-'+bk,   ssRef?Math.round(ssRef/refAov):0);
+  const totalRef=cafeRef+cpRef+ssRef;
+  const totalRefN=totalRef?Math.round(totalRef/refAov):0;
+  set('totalRef-'+bk, `${W(totalRef)} 원 / 예상 ${totalRefN}건`);
   set('cpa-'+bk,W(cpa)); set('aov-'+bk,W(aov));
   const ri=$('roas-'+bk); if(ri){ri.textContent=`${roasB}% / ${roasA}%`;ri.className='val '+roasCls;}
   // 미리보기 항상 자동 반영
