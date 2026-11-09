@@ -11,12 +11,17 @@ try { [Console]::OutputEncoding = [System.Text.Encoding]::UTF8 } catch {}
 $sess = & $py (Join-Path $adauto "session_check.py") | Out-String
 
 # 1) 수집 → 암호화
+$sendHours = @()   # 발송은 ChedaMine_Send 태스크가 별도 처리
+$hour = [int](Get-Date -Format "HH")
 $out = & $py collector.py | Out-String
+# 발송 시간이면 직전에 한번 더 수집 (세션점검 소요시간만큼 밀린 at 보정)
+if ($sendHours -contains $hour) {
+    $out2 = & $py collector.py | Out-String
+    $out = $out2
+}
 $enc = & $py encrypt.py | Out-String
 
-# 2) 슬랙 자동발송: 이력은 매번 기록, 12/16/21시만 실제 발송(20% 이상차→커머스체다 점검요청)
-$sendHours = @(12, 16, 21)
-$hour = [int](Get-Date -Format "HH")
+# 2) 슬랙 자동발송
 $sendArg = $(if ($sendHours -contains $hour) { "--send" } else { "" })
 $snd = & $py slack_send.py $sendArg | Out-String
 
@@ -27,7 +32,10 @@ $cls = & $py (Join-Path $adauto "close_all.py") | Out-String
 "[$(Get-Date -Format s)]`nSESSION: $sess`nCOLLECT: $out`nENCRYPT: $enc`nSEND: $snd`nCLOSE: $cls" |
     Out-File -FilePath $log -Append -Encoding utf8
 
-# 4) 암호화 데이터만 공개 repo에 푸시
-git add data/data.enc 2>$null
+# 4) 히스토리 암호화
+$henc = & $py encrypt_history.py | Out-String
+
+# 5) 암호화 데이터만 공개 repo에 푸시
+git add data/data.enc data/history.enc 2>$null
 git commit -q -m "update $(Get-Date -Format 'yyyy-MM-dd HH:mm')" 2>$null
 git push -q 2>$null
