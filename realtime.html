@@ -217,12 +217,12 @@ function render(d){
     const adSubs=(AD_CH[bk]||[]).map(([k,lab])=>`
       <div class="sub"><span class="lbl">◦ ${lab}</span><span class="val">${E(bk,k,v[k]||0)}</span></div>`).join('');
 
-    const refSection=hasRef?`
+    const refSection=`
       <div class="div"></div>
-      <div class="row"><span class="lbl">• 매출 (환불 후)</span><span class="val">${W(salesA)}</span></div>
-      <div class="sub"><span class="lbl">◦ 자사몰</span><span class="val">${W(cafe2)} <span class="ref-info">(환불 ${W(cafeRef)}원 / 예상 ${cafeRefN}건)</span></span></div>
-      <div class="sub"><span class="lbl">◦ 쿠팡</span><span class="val">${W(cp2)} <span class="ref-info">(환불 ${W(cpRef)}원 / 예상 ${cpRefN}건)</span></span></div>
-      <div class="sub"><span class="lbl">◦ 스마트스토어</span><span class="val">${W(ss)} <span class="ref-info">(환불 ${W(ssRef)}원 / 예상 ${ssRefN}건)</span></span></div>`:'';
+      <div class="row"><span class="lbl">• 매출 (환불 후)</span><span class="val" id="salesA-${bk}">${W(salesA)}</span></div>
+      <div class="sub"><span class="lbl">◦ 자사몰</span><span class="val"><span id="cafe2-${bk}">${W(cafe2)}</span> <span class="ref-info">(환불 ${E(bk,'cafe24Refund',cafeRef)}원 / 예상 <span id="cafeRefN-${bk}">${cafeRefN}</span>건)</span></span></div>
+      <div class="sub"><span class="lbl">◦ 쿠팡</span><span class="val"><span id="cp2-${bk}">${W(cp2)}</span> <span class="ref-info">(환불 ${E(bk,'coupang1Refund',cpRef)}원 / 예상 <span id="cpRefN-${bk}">${cpRefN}</span>건)</span></span></div>
+      <div class="sub"><span class="lbl">◦ 스마트스토어</span><span class="val"><span id="ss2-${bk}">${W(ss)}</span> <span class="ref-info">(환불 ${E(bk,'ss1Refund',ssRef)}원 / 예상 <span id="ssRefN-${bk}">${ssRefN}</span>건)</span></span></div>`;
 
     const card=document.createElement('div');
     card.className='card'; card.id='card-'+bk;
@@ -269,16 +269,23 @@ function recalc(bk){
   const cafe=nn(v.cafe24Sales),cafeN=nn(v.cafe24Orders);
   const cp=nn(v.coupang1Sales),cpN=nn(v.coupang1Orders);
   const ss=nn(v.ss1Sales),ssN=nn(v.ss1Orders);
-  const cafeRef=nn(v.cafe24Refund),cpRef=nn(v.coupang1Refund);
+  const cafeRef=nn(v.cafe24Refund),cpRef=nn(v.coupang1Refund),ssRef=nn(v.ss1Refund);
   const ad=nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
-  const salesB=cafe+cp+ss,salesA=Math.max(0,cafe-cafeRef)+Math.max(0,cp-cpRef)+ss;
+  const cafe2=Math.max(0,cafe-cafeRef),cp2=Math.max(0,cp-cpRef);
+  const salesB=cafe+cp+ss,salesA=cafe2+cp2+ss;
   const orders=cafeN+cpN+ssN;
   const roasB=ad?Math.round(salesB/ad*100):0,roasA=ad?Math.round(salesA/ad*100):0;
   const cpa=orders?Math.round(ad/orders):0,aov=orders?Math.round(salesB/orders):0;
   const roasCls=roasA>=200?'roas-g':roasA<100?'roas-b':'';
+  const refAov=aov||1;
   const $=id=>document.getElementById(id);
   const set=(id,v)=>{const el=$(id);if(el)el.textContent=v;};
   set('ad-'+bk,W(ad)); set('salesB-'+bk,W(salesB));
+  set('salesA-'+bk,W(salesA));
+  set('cafe2-'+bk,W(cafe2)); set('cp2-'+bk,W(cp2)); set('ss2-'+bk,W(ss));
+  set('cafeRefN-'+bk, cafeRef?Math.round(cafeRef/refAov):0);
+  set('cpRefN-'+bk,   cpRef?Math.round(cpRef/refAov):0);
+  set('ssRefN-'+bk,   ssRef?Math.round(ssRef/refAov):0);
   set('cpa-'+bk,W(cpa)); set('aov-'+bk,W(aov));
   const ri=$('roas-'+bk); if(ri){ri.textContent=`${roasB}% / ${roasA}%`;ri.className='val '+roasCls;}
   // 미리보기 항상 자동 반영
