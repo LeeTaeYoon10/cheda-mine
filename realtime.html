@@ -43,6 +43,7 @@ header .asof{font-size:12px;color:#9ca3af;margin-top:4px}
 [contenteditable]{cursor:text;outline:none;border-radius:4px;padding:1px 4px;min-width:30px;display:inline-block;text-align:right}
 [contenteditable]:hover{background:#eff6ff}
 [contenteditable]:focus{background:#dbeafe;box-shadow:0 0 0 2px #3b82f6}
+.ref-edit-row [contenteditable]{min-width:80px;border:1px solid #fcd34d;background:#fffbeb;padding:2px 6px;border-radius:6px;font-size:13px}
 
 .preview-wrap{margin-top:14px;padding-top:12px;border-top:1px solid #f3f4f6}
 .preview-label{font-size:11px;color:#9ca3af;margin-bottom:6px;font-weight:600;letter-spacing:.03em}
@@ -220,9 +221,12 @@ function render(d){
     const refSection=`
       <div class="div"></div>
       <div class="row"><span class="lbl">• 매출 (환불 후)</span><span class="val" id="salesA-${bk}">${W(salesA)}</span></div>
-      <div class="sub"><span class="lbl">◦ 자사몰</span><span class="val"><span id="cafe2-${bk}">${W(cafe2)}</span> <span class="ref-info">(환불 ${E(bk,'cafe24Refund',cafeRef)}원 / 예상 <span id="cafeRefN-${bk}">${cafeRefN}</span>건)</span></span></div>
-      <div class="sub"><span class="lbl">◦ 쿠팡</span><span class="val"><span id="cp2-${bk}">${W(cp2)}</span> <span class="ref-info">(환불 ${E(bk,'coupang1Refund',cpRef)}원 / 예상 <span id="cpRefN-${bk}">${cpRefN}</span>건)</span></span></div>
-      <div class="sub"><span class="lbl">◦ 스마트스토어</span><span class="val"><span id="ss2-${bk}">${W(ss)}</span> <span class="ref-info">(환불 ${E(bk,'ss1Refund',ssRef)}원 / 예상 <span id="ssRefN-${bk}">${ssRefN}</span>건)</span></span></div>`;
+      <div class="sub"><span class="lbl">◦ 자사몰 순매출</span><span class="val" id="cafe2-${bk}">${W(cafe2)}</span></div>
+      <div class="sub ref-edit-row"><span class="lbl" style="color:#d97706">  └ 환불금액</span><span class="val">${E(bk,'cafe24Refund',cafeRef)} 원 <span class="ref-info">/ 예상 <span id="cafeRefN-${bk}">${cafeRefN}</span>건</span></span></div>
+      <div class="sub"><span class="lbl">◦ 쿠팡 순매출</span><span class="val" id="cp2-${bk}">${W(cp2)}</span></div>
+      <div class="sub ref-edit-row"><span class="lbl" style="color:#d97706">  └ 환불금액</span><span class="val">${E(bk,'coupang1Refund',cpRef)} 원 <span class="ref-info">/ 예상 <span id="cpRefN-${bk}">${cpRefN}</span>건</span></span></div>
+      <div class="sub"><span class="lbl">◦ 스마트스토어 순매출</span><span class="val" id="ss2-${bk}">${W(ss)}</span></div>
+      <div class="sub ref-edit-row"><span class="lbl" style="color:#d97706">  └ 환불금액</span><span class="val">${E(bk,'ss1Refund',ssRef)} 원 <span class="ref-info">/ 예상 <span id="ssRefN-${bk}">${ssRefN}</span>건</span></span></div>`;
 
     const card=document.createElement('div');
     card.className='card'; card.id='card-'+bk;
