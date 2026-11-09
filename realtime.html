@@ -2,109 +2,153 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>체다 실시간 성과</title>
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font:14px/1.6 Pretendard,system-ui,sans-serif;background:#f1f5f9;color:#111827;min-height:100vh}
-  #gate{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:12px;padding:24px}
-  #gate h2{font-size:18px;color:#111827}
-  #gate input{width:260px;padding:10px 14px;border:1px solid #d1d5db;border-radius:10px;font-size:15px;outline:none}
-  #gate button{padding:10px 28px;background:#111827;color:#fff;border:none;border-radius:10px;font-size:15px;cursor:pointer}
-  #gate .err{color:#dc2626;font-size:13px}
-  #app{display:none;padding:16px;max-width:600px;margin:0 auto}
-  .header{text-align:center;padding:16px 0 20px;color:#6b7280;font-size:13px}
-  .header strong{display:block;font-size:20px;color:#111827;margin-bottom:4px}
-  .card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px #0000000d}
-  .card-title{font-size:15px;font-weight:700;color:#111827;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #f1f5f9}
-  .row{display:flex;justify-content:space-between;padding:4px 0;font-size:14px}
-  .row .label{color:#374151}
-  .row .val{font-weight:600;color:#111827}
-  .sub-row{display:flex;justify-content:space-between;padding:2px 0 2px 14px;font-size:13px}
-  .sub-row .label{color:#9ca3af}
-  .sub-row .val{color:#6b7280}
-  .divider{height:1px;background:#f3f4f6;margin:8px 0}
-  .roas-good{color:#15803d}
-  .roas-bad{color:#dc2626}
-  .refund{color:#9ca3af;font-size:12px}
-  .footer{text-align:center;color:#9ca3af;font-size:12px;padding:16px 0 32px}
-  button.refresh{display:block;margin:0 auto 16px;padding:8px 20px;background:#fff;border:1px solid #e5e7eb;border-radius:10px;font-size:13px;cursor:pointer;color:#374151}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:14px/1.6 Pretendard,system-ui,sans-serif;background:#f1f5f9;color:#111827;min-height:100vh}
+
+/* 게이트 */
+#gate{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:14px;padding:24px}
+#gate .logo{font-size:22px;font-weight:800;color:#111827}
+#gate .sub{font-size:13px;color:#6b7280}
+#gate input{width:280px;padding:11px 16px;border:1px solid #d1d5db;border-radius:12px;font-size:15px;outline:none;text-align:center}
+#gate input:focus{border-color:#111827}
+#gate button{padding:11px 36px;background:#111827;color:#fff;border:none;border-radius:12px;font-size:15px;cursor:pointer;font-weight:600}
+#gate .err{color:#dc2626;font-size:13px;min-height:18px}
+
+/* 앱 */
+#app{display:none;padding:14px;max-width:620px;margin:0 auto}
+header{text-align:center;padding:14px 0 18px}
+header .h1{font-size:19px;font-weight:800;color:#111827}
+header .asof{font-size:12px;color:#9ca3af;margin-top:4px}
+.top-btns{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.top-btns button{padding:8px 18px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:13px;cursor:pointer;font-weight:600;color:#374151}
+.top-btns .send-all{background:#111827;color:#fff;border-color:#111827}
+
+/* 카드 */
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:0 1px 4px #0000000d}
+.card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid #f3f4f6}
+.card-hdr .title{font-size:14px;font-weight:700;color:#111827}
+.card-hdr .send-btn{padding:5px 14px;background:#111827;color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600}
+.row{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0;font-size:14px}
+.row .lbl{color:#374151}
+.row .val{font-weight:600;color:#111827}
+.sub{display:flex;justify-content:space-between;align-items:baseline;padding:2px 0 2px 14px;font-size:13px}
+.sub .lbl{color:#9ca3af}
+.sub .val{color:#6b7280;font-weight:500}
+.div{height:1px;background:#f3f4f6;margin:7px 0}
+.roas-g{color:#15803d}
+.roas-b{color:#dc2626}
+.ref{color:#9ca3af;font-size:11px;margin-left:6px}
+
+/* 편집 가능 숫자 */
+[contenteditable]{cursor:text;outline:none;border-radius:4px;padding:1px 3px;min-width:40px;display:inline-block;text-align:right}
+[contenteditable]:hover{background:#eff6ff}
+[contenteditable]:focus{background:#dbeafe;box-shadow:0 0 0 2px #3b82f6}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:12px;font-size:13px;z-index:9999;display:none;white-space:nowrap}
 </style>
 </head>
 <body>
 
 <div id="gate">
-  <h2>🧀 체다 실시간 성과</h2>
+  <div class="logo">🧀 체다 실시간 성과</div>
+  <div class="sub">팀 내부용 · 비밀번호를 입력하세요</div>
   <input id="pw" type="password" placeholder="비밀번호" autofocus>
   <button onclick="unlock()">열기</button>
   <div class="err" id="err"></div>
 </div>
 
 <div id="app">
-  <div class="header"><strong>🧀 체다 실시간 성과</strong><span id="asof"></span></div>
-  <button class="refresh" onclick="refresh_()">↻ 새로고침</button>
+  <header>
+    <div class="h1">🧀 체다 실시간 성과</div>
+    <div class="asof" id="asof"></div>
+  </header>
+  <div class="top-btns">
+    <button class="send-all" onclick="sendAll()">📤 전체 발송</button>
+    <button onclick="refresh_()">↻ 새로고침</button>
+    <button onclick="lock()">🔒 잠금</button>
+  </div>
   <div id="cards"></div>
-  <div class="footer">체다팀 내부용 · <span id="asof2"></span></div>
 </div>
 
+<div class="toast" id="toast"></div>
+
 <script>
-const W = n => Number(n||0).toLocaleString('ko-KR');
-const pct = (a,b) => b ? Math.round(a/b*100)+'%' : '—';
 const DAYS = ['일','월','화','수','목','금','토'];
 const BRANDS = ['graniesalad','basetune','hattke','salagris'];
+const AD_CH = {
+  graniesalad: [['meta','메타'],['google','구글'],['tiktok','틱톡']],
+  basetune:    [['meta','메타'],['google','구글'],['tiktok','틱톡'],['gfa','GFA']],
+  hattke:      [['meta','메타'],['google','구글'],['tiktok','틱톡'],['gfa','GFA'],['kakao','카카오'],['naversa','네이버SA']],
+  salagris:    [['meta','메타'],['google','구글'],['tiktok','틱톡']],
+};
+let CURRENT = null;
+const nn = x => Number(x)||0;
+const W  = n => nn(n).toLocaleString('ko-KR');
 
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(t._h); t._h = setTimeout(()=>t.style.display='none', 2800);
+}
+
+// ───── 복호화 ─────
 async function decryptBlob(pw, b64){
   const raw = Uint8Array.from(atob(b64.trim()), c=>c.charCodeAt(0));
   const salt=raw.slice(0,16), iv=raw.slice(16,28), ct=raw.slice(28);
   const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
-  const key = await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
-  const pt = await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ct);
+  const key  = await crypto.subtle.deriveKey({name:'PBKDF2',salt,iterations:250000,hash:'SHA-256'},base,{name:'AES-GCM',length:256},false,['decrypt']);
+  const pt   = await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ct);
   return JSON.parse(new TextDecoder().decode(pt));
 }
-
-async function load(){
+async function loadData(){
   const pw = sessionStorage.getItem('rt_pw');
   if(!pw) throw new Error('nopw');
   const b64 = await (await fetch('data/data.enc?_='+Date.now())).text();
   return decryptBlob(pw, b64);
 }
 
+// ───── 게이트 ─────
 async function unlock(){
   const pw = document.getElementById('pw').value.trim();
   if(!pw) return;
   sessionStorage.setItem('rt_pw', pw);
   try {
-    const d = await load();
-    document.getElementById('gate').style.display='none';
-    document.getElementById('app').style.display='block';
+    const d = await loadData();
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display  = 'block';
     render(d);
   } catch(e){
     sessionStorage.removeItem('rt_pw');
-    document.getElementById('err').textContent='비밀번호가 다릅니다';
+    document.getElementById('err').textContent = '비밀번호가 다릅니다';
   }
 }
+function lock(){ sessionStorage.removeItem('rt_pw'); location.reload(); }
+async function refresh_(){ try{ render(await loadData()); toast('새로고침 완료'); } catch(e){ toast('오류: '+e.message); } }
 
-async function refresh_(){
-  try { render(await load()); } catch(e){}
-}
-
-// URL 파라미터로 비밀번호 자동입력
+document.getElementById('pw').addEventListener('keydown', e=>{ if(e.key==='Enter') unlock(); });
 (function(){
   const p = new URLSearchParams(location.search).get('pw');
-  if(p){ sessionStorage.setItem('rt_pw',''); sessionStorage.setItem('rt_pw',p); document.getElementById('pw').value=p; unlock(); }
-  else if(sessionStorage.getItem('rt_pw')){ unlock(); }
+  if(p){ sessionStorage.setItem('rt_pw',p); document.getElementById('pw').value=p; unlock(); }
+  else if(sessionStorage.getItem('rt_pw')) unlock();
 })();
 
+// ───── 렌더 ─────
+function makeEdit(bk, field, val){
+  return `<span contenteditable="true" data-bk="${bk}" data-field="${field}">${W(val)}</span>`;
+}
+
 function render(d){
-  const at = d.at || '';
-  const dateStr = d.date || '';
-  const dt = new Date(at);
+  CURRENT = d;
+  const at = d.at||'';
+  const dateStr = d.date||'';
+  const dt  = at ? new Date(at) : new Date();
   const dow = DAYS[dt.getDay()];
-  const hhmm = at.slice(11,16);
-  const yy = dateStr.slice(2,4)+'/'+dateStr.slice(5,7)+'/'+dateStr.slice(8,10);
-  const label = `${yy} (${dow}) ${hhmm}`;
-  document.getElementById('asof').textContent = label;
-  document.getElementById('asof2').textContent = label + ' 기준';
+  const hhmm= at.slice(11,16);
+  const yy  = dateStr.slice(2,4)+'/'+dateStr.slice(5,7)+'/'+dateStr.slice(8,10);
+  document.getElementById('asof').textContent = `${yy} (${dow}) ${hhmm} 기준`;
 
   const cards = document.getElementById('cards');
   cards.innerHTML = '';
@@ -113,67 +157,161 @@ function render(d){
     const v = (d.brands||{})[bk];
     if(!v) continue;
 
-    const cafe=v.cafe24Sales||0, cp=v.coupang1Sales||0, ss=v.ss1Sales||0;
-    const cafeN=v.cafe24Orders||0, cpN=v.coupang1Orders||0, ssN=v.ss1Orders||0;
-    const cafe2=v.cafe24V2Sales||0, cp2=v.coupang1V2Sales||0;
-    const cafeRef=v.cafe24Refund||0, cpRef=v.coupang1Refund||0, ssRef=v.ss1Refund||0;
-    const meta=v.meta||0, google=v.google||0, tiktok=v.tiktok||0;
-    const gfa=v.gfa||0, kakao=v.kakao||0, nsa=v.naversa||0;
-    const ad = meta+google+tiktok+gfa+kakao+nsa;
-    const salesB = cafe+cp+ss;
-    const salesA = cafe2+cp2+ss;
-    const ordersB = cafeN+cpN+ssN;
+    const cafe=nn(v.cafe24Sales),cafeN=nn(v.cafe24Orders);
+    const cp=nn(v.coupang1Sales),cpN=nn(v.coupang1Orders);
+    const ss=nn(v.ss1Sales),ssN=nn(v.ss1Orders);
+    const cafeRef=nn(v.cafe24Refund), cpRef=nn(v.coupang1Refund), ssRef=nn(v.ss1Refund);
+    const cafe2=nn(v.cafe24V2Sales), cp2=nn(v.coupang1V2Sales);
+    const meta=nn(v.meta),google=nn(v.google),tiktok=nn(v.tiktok);
+    const gfa=nn(v.gfa),kakao=nn(v.kakao),nsa=nn(v.naversa);
+    const ad    = meta+google+tiktok+gfa+kakao+nsa;
+    const salesB= cafe+cp+ss;
+    const salesA= cafe2+cp2+ss;
+    const ordersB=cafeN+cpN+ssN;
     const roasB = ad ? Math.round(salesB/ad*100) : 0;
     const roasA = ad ? Math.round(salesA/ad*100) : 0;
-    const cpa = ordersB ? Math.round(ad/ordersB) : 0;
-    const aov = ordersB ? Math.round(salesB/ordersB) : 0;
-    const cafePct = salesB ? Math.round(cafe/salesB*100) : 0;
-    const roasClass = roasA>=200?'roas-good':roasA<100?'roas-bad':'';
+    const cpa   = ordersB ? Math.round(ad/ordersB) : 0;
+    const aov   = ordersB ? Math.round(salesB/ordersB) : 0;
+    const cafePct = ordersB ? Math.round(cafeN/ordersB*100) : 0;
+    const roasCls = roasA>=200?'roas-g':roasA<100?'roas-b':'';
 
-    const adSubs = [
-      meta   ? `<div class="sub-row"><span class="label">◦ 메타</span><span class="val">${W(meta)}</span></div>` : '',
-      google ? `<div class="sub-row"><span class="label">◦ 구글</span><span class="val">${W(google)}</span></div>` : '',
-      tiktok ? `<div class="sub-row"><span class="label">◦ 틱톡</span><span class="val">${W(tiktok)}</span></div>` : '',
-      gfa    ? `<div class="sub-row"><span class="label">◦ GFA</span><span class="val">${W(gfa)}</span></div>` : '',
-      kakao  ? `<div class="sub-row"><span class="label">◦ 카카오</span><span class="val">${W(kakao)}</span></div>` : '',
-      nsa    ? `<div class="sub-row"><span class="label">◦ 네이버SA</span><span class="val">${W(nsa)}</span></div>` : '',
-    ].join('');
+    const adSubs = (AD_CH[bk]||[]).map(([k,lab])=>`
+      <div class="sub"><span class="lbl">◦ ${lab}</span><span class="val">${makeEdit(bk,k,v[k]||0)}</span></div>`).join('');
 
-    const refPct = cafeRef ? ` <span class="refund">(환불 ${W(cafeRef)}원)</span>` : '';
-    const cpRefPct = cpRef ? ` <span class="refund">(환불 ${W(cpRef)}원)</span>` : '';
+    const hasRefund = cafeRef||cpRef||ssRef;
+    const refSection = hasRefund ? `
+      <div class="div"></div>
+      <div class="row"><span class="lbl">• 매출 (환불 후)</span><span class="val">${W(salesA)}</span></div>
+      <div class="sub"><span class="lbl">◦ 자사몰</span><span class="val">${W(cafe2)} <span class="ref">(환불 ${W(cafeRef)}원)</span></span></div>
+      <div class="sub"><span class="lbl">◦ 쿠팡</span><span class="val">${W(cp2)} <span class="ref">(환불 ${W(cpRef)}원)</span></span></div>
+      <div class="sub"><span class="lbl">◦ 스마트스토어</span><span class="val">${W(ss)} <span class="ref">(환불 ${W(ssRef)}원)</span></span></div>` : '';
 
-    const html = `
-<div class="card">
-  <div class="card-title">${v.label} · ${dateStr.slice(5)} (${dow}) ${hhmm}</div>
-
-  <div class="row"><span class="label">• 광고비</span><span class="val">${W(ad)}</span></div>
-  ${adSubs}
-
-  <div class="divider"></div>
-
-  <div class="row"><span class="label">• 매출 / ${W(ordersB)}건 (환불 전)</span><span class="val">${W(salesB)}</span></div>
-  <div class="sub-row"><span class="label">◦ 자사몰</span><span class="val">${W(cafe)} / ${cafeN}건</span></div>
-  <div class="sub-row"><span class="label">◦ 쿠팡</span><span class="val">${W(cp)} / ${cpN}건</span></div>
-  <div class="sub-row"><span class="label">◦ 스마트스토어</span><span class="val">${W(ss)} / ${ssN}건</span></div>
-
-  ${cafeRef||cpRef||ssRef ? `
-  <div class="divider"></div>
-  <div class="row"><span class="label">• 매출 (환불 후)</span><span class="val">${W(salesA)}</span></div>
-  <div class="sub-row"><span class="label">◦ 자사몰</span><span class="val">${W(cafe2)}${refPct}</span></div>
-  <div class="sub-row"><span class="label">◦ 쿠팡</span><span class="val">${W(cp2)}${cpRefPct}</span></div>
-  ` : ''}
-
-  <div class="divider"></div>
-  <div class="row"><span class="label">• ROAS (환불 전/후)</span><span class="val ${roasClass}">${roasB}% / ${roasA}%</span></div>
-  <div class="row"><span class="label">• CPA</span><span class="val">${W(cpa)}</span></div>
-  <div class="row"><span class="label">• 객단가</span><span class="val">${W(aov)}</span></div>
-  <div class="row"><span class="label">• 결제 비율</span><span class="val">자사몰 ${cafePct}% / 외 ${100-cafePct}%</span></div>
-</div>`;
-    cards.insertAdjacentHTML('beforeend', html);
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.id = 'card-'+bk;
+    card.innerHTML = `
+      <div class="card-hdr">
+        <span class="title">[${v.label}] ${yy} (${dow}) ${hhmm}</span>
+        <button class="send-btn" onclick="sendBrand('${bk}')">📤 발송</button>
+      </div>
+      <div class="row"><span class="lbl">• 광고비</span><span class="val" id="ad-${bk}">${W(ad)}</span></div>
+      ${adSubs}
+      <div class="div"></div>
+      <div class="row"><span class="lbl">• 매출 / ${ordersB}건 (환불 전)</span><span class="val" id="salesB-${bk}">${W(salesB)}</span></div>
+      <div class="sub"><span class="lbl">◦ 자사몰</span><span class="val">${makeEdit(bk,'cafe24Sales',cafe)} / ${makeEdit(bk,'cafe24Orders',cafeN)}건</span></div>
+      <div class="sub"><span class="lbl">◦ 쿠팡</span><span class="val">${makeEdit(bk,'coupang1Sales',cp)} / ${makeEdit(bk,'coupang1Orders',cpN)}건</span></div>
+      <div class="sub"><span class="lbl">◦ 스마트스토어</span><span class="val">${makeEdit(bk,'ss1Sales',ss)} / ${makeEdit(bk,'ss1Orders',ssN)}건</span></div>
+      ${refSection}
+      <div class="div"></div>
+      <div class="row"><span class="lbl">• ROAS (환불 전/후)</span><span class="val ${roasCls}" id="roas-${bk}">${roasB}% / ${roasA}%</span></div>
+      <div class="row"><span class="lbl">• CPA</span><span class="val" id="cpa-${bk}">${W(cpa)}</span></div>
+      <div class="row"><span class="lbl">• 객단가</span><span class="val" id="aov-${bk}">${W(aov)}</span></div>
+      <div class="row"><span class="lbl">• 결제 비율</span><span class="val">자사몰 ${cafePct}% / 외 ${100-cafePct}%</span></div>
+    `;
+    cards.appendChild(card);
   }
 }
 
-document.getElementById('pw').addEventListener('keydown', e => { if(e.key==='Enter') unlock(); });
+// ───── 숫자 수정 → 자동 재계산 ─────
+document.addEventListener('input', e=>{
+  const el = e.target.closest('[data-field]');
+  if(!el || el.contentEditable!=='true') return;
+  const bk = el.dataset.bk, field = el.dataset.field;
+  const raw = parseInt((el.innerText||'').replace(/[^0-9]/g,''))||0;
+  if(!CURRENT||!CURRENT.brands[bk]) return;
+  CURRENT.brands[bk][field] = raw;
+  recalc(bk);
+});
+
+function recalc(bk){
+  const v = CURRENT.brands[bk];
+  const cafe=nn(v.cafe24Sales),cafeN=nn(v.cafe24Orders);
+  const cp=nn(v.coupang1Sales),cpN=nn(v.coupang1Orders);
+  const ss=nn(v.ss1Sales),ssN=nn(v.ss1Orders);
+  const cafeRef=nn(v.cafe24Refund), cpRef=nn(v.coupang1Refund);
+  const ad = nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
+  const salesB = cafe+cp+ss;
+  const salesA = (cafe-cafeRef)+(cp-cpRef)+ss;
+  const orders = cafeN+cpN+ssN;
+  const roasB  = ad ? Math.round(salesB/ad*100) : 0;
+  const roasA  = ad ? Math.round(salesA/ad*100) : 0;
+  const cpa    = orders ? Math.round(ad/orders) : 0;
+  const aov    = orders ? Math.round(salesB/orders) : 0;
+  const roasCls = roasA>=200?'roas-g':roasA<100?'roas-b':'';
+  const set = (id,v)=>{ const el=document.getElementById(id); if(el) el.textContent=v; };
+  const setC = (id,v,cls)=>{ const el=document.getElementById(id); if(el){el.textContent=v;el.className='val '+cls;} };
+  set('ad-'+bk, W(ad));
+  set('salesB-'+bk, W(salesB));
+  setC('roas-'+bk, `${roasB}% / ${roasA}%`, roasCls);
+  set('cpa-'+bk, W(cpa));
+  set('aov-'+bk, W(aov));
+}
+
+// ───── 슬랙 발송 ─────
+function buildMsg(bk){
+  const d=CURRENT, v=d.brands[bk];
+  const dateStr=d.date||'';
+  const at=d.at||'';
+  const hhmm = at.slice(11,16);
+  const dow = DAYS[new Date(at||dateStr+'T12:00:00').getDay()];
+  const yy = dateStr.slice(2,4)+'/'+dateStr.slice(5,7)+'/'+dateStr.slice(8,10);
+  const nn=x=>Number(x)||0, WW=x=>nn(x).toLocaleString('ko-KR');
+  const cafe=nn(v.cafe24Sales),cafeN=nn(v.cafe24Orders);
+  const cp=nn(v.coupang1Sales),cpN=nn(v.coupang1Orders);
+  const ss=nn(v.ss1Sales),ssN=nn(v.ss1Orders);
+  const cafeRef=nn(v.cafe24Refund),cpRef=nn(v.coupang1Refund),ssRef=nn(v.ss1Refund);
+  const cafe2=Math.max(0,cafe-cafeRef), cp2=Math.max(0,cp-cpRef);
+  const ad=nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
+  const salesB=cafe+cp+ss, salesA=cafe2+cp2+ss;
+  const orders=cafeN+cpN+ssN;
+  const roasB=ad?Math.round(salesB/ad*100):0, roasA=ad?Math.round(salesA/ad*100):0;
+  const cpa=orders?Math.round(ad/orders):0, aov=orders?Math.round(salesB/orders):0;
+  const cafePct=orders?Math.round(cafeN/orders*100):0;
+  const hasRef=cafeRef||cpRef||ssRef;
+  const L=[`[${v.label}] ${yy} (${dow}) ${hhmm}`,'',`•   광고비 ${WW(ad)}`];
+  (AD_CH[bk]||[]).forEach(([k,lab])=>{ if(nn(v[k])) L.push(`    ◦   ${lab} ${WW(v[k])}`); });
+  L.push('',`•   매출 ${WW(salesB)} / ${orders}건 (환불 전)`,
+    `    ◦   자사몰 ${WW(cafe)} / ${cafeN}건`,
+    `    ◦   쿠팡 ${WW(cp)} / ${cpN}건`,
+    `    ◦   스마트스토어 ${WW(ss)} / ${ssN}건`);
+  if(hasRef){
+    L.push('',`•   매출 ${WW(salesA)} / ${orders}건 (환불 후)`,
+      `    ◦   자사몰 ${WW(cafe2)} / ${cafeN}건 (환불 ${WW(cafeRef)}원)`,
+      `    ◦   쿠팡 ${WW(cp2)} / ${cpN}건 (환불 ${WW(cpRef)}원)`,
+      `    ◦   스마트스토어 ${WW(ss)} / ${ssN}건 (환불 ${WW(ssRef)}원)`);
+  }
+  L.push('',
+    `•   ROAS ${roasB}% (환불 전) / ${roasA}% (환불 후) / CPA ${WW(cpa)}`,
+    `•   객단가 ${WW(aov)}`,
+    `•   결제 비율 (자사몰 ${cafePct}% / 외 ${100-cafePct}%)`);
+  return L.join('\n');
+}
+
+async function sendBrand(bk){
+  const s = CURRENT&&CURRENT._slack;
+  if(!s||!s.botToken){ toast('슬랙 설정 없음'); return; }
+  const ch = s.channels&&s.channels[bk];
+  if(!ch){ toast('지표방 미설정'); return; }
+  const text = buildMsg(bk);
+  const body = new URLSearchParams({token:s.botToken,channel:ch,text,username:s.username||'실시간 성과 알림 봇',icon_emoji:':bar_chart:'});
+  try {
+    await fetch('https://slack.com/api/chat.postMessage',{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:body.toString()});
+    toast(`${CURRENT.brands[bk].label} 발송 완료`);
+  } catch(e){ toast('발송 실패: '+e.message); }
+}
+
+async function sendAll(){
+  const s = CURRENT&&CURRENT._slack;
+  if(!s||!s.botToken){ toast('슬랙 설정 없음'); return; }
+  let n=0;
+  for(const bk of BRANDS){
+    if(s.channels&&s.channels[bk]){
+      await sendBrand(bk); n++;
+      await new Promise(r=>setTimeout(r,1500));
+    }
+  }
+  toast(`전체 발송 완료 (${n}건)`);
+}
 </script>
 </body>
 </html>
