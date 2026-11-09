@@ -281,15 +281,9 @@ function recalc(bk){
   set('ad-'+bk,W(ad)); set('salesB-'+bk,W(salesB));
   set('cpa-'+bk,W(cpa)); set('aov-'+bk,W(aov));
   const ri=$('roas-'+bk); if(ri){ri.textContent=`${roasB}% / ${roasA}%`;ri.className='val '+roasCls;}
-  // 미리보기 업데이트
-  const ta=$('preview-'+bk); if(ta&&!ta.dataset.manualEdit) ta.value=buildMsg(bk);
+  // 미리보기 항상 자동 반영
+  const ta=$('preview-'+bk); if(ta) ta.value=buildMsg(bk);
 }
-
-// textarea 직접 수정 시 자동업데이트 중단
-document.addEventListener('input',e=>{
-  if(e.target.classList&&e.target.classList.contains('preview-textarea'))
-    e.target.dataset.manualEdit='1';
-});
 
 // ───── 슬랙 발송 ─────
 async function sendBrand(bk){
