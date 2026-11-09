@@ -211,8 +211,9 @@ function render(d){
     const cafeRef=nn(v.cafe24Refund),cpRef=nn(v.coupang1Refund),ssRef=nn(v.ss1Refund);
     const cafe2=nn(v.cafe24V2Sales)||Math.max(0,cafe-cafeRef);
     const cp2=nn(v.coupang1V2Sales)||Math.max(0,cp-cpRef);
+    const ss2=Math.max(0,ss-ssRef);
     const ad=nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
-    const salesB=cafe+cp+ss,salesA=cafe2+cp2+ss;
+    const salesB=cafe+cp+ss,salesA=cafe2+cp2+ss2;
     const orders=cafeN+cpN+ssN;
     const roasB=ad?Math.round(salesB/ad*100):0,roasA=ad?Math.round(salesA/ad*100):0;
     const cpa=orders?Math.round(ad/orders):0,aov=orders?Math.round(salesB/orders):0;
