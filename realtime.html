@@ -8,6 +8,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font:14px/1.6 Pretendard,system-ui,sans-serif;background:#f1f5f9;color:#111827;min-height:100vh}
 
+/* ── 게이트 ── */
 #gate{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:14px;padding:24px}
 #gate .logo{font-size:22px;font-weight:800}
 #gate .sub{font-size:13px;color:#6b7280}
@@ -16,19 +17,22 @@ body{font:14px/1.6 Pretendard,system-ui,sans-serif;background:#f1f5f9;color:#111
 #gate button{padding:11px 36px;background:#111827;color:#fff;border:none;border-radius:12px;font-size:15px;cursor:pointer;font-weight:600}
 #gate .err{color:#dc2626;font-size:13px;min-height:18px}
 
-#app{display:none;padding:14px;max-width:640px;margin:0 auto}
-header{text-align:center;padding:14px 0 18px}
+/* ── 앱 ── */
+#app{display:none;padding:14px;max-width:680px;margin:0 auto}
+header{text-align:center;padding:14px 0 10px}
 header .h1{font-size:19px;font-weight:800}
-header .asof{font-size:12px;color:#9ca3af;margin-top:4px}
-.top-btns{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
-.top-btns button{padding:8px 18px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:13px;cursor:pointer;font-weight:600;color:#374151}
-.top-btns .send-all{background:#111827;color:#fff;border-color:#111827}
 
-.card{background:#fff;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px #0000000d}
+/* ── 탭 ── */
+.tab-bar{display:flex;gap:0;margin-bottom:16px;background:#fff;border-radius:14px;padding:4px;box-shadow:0 1px 4px #0000000d}
+.tab-btn{flex:1;padding:9px 0;border:none;background:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;color:#6b7280;transition:all .15s}
+.tab-btn.active{background:#111827;color:#fff}
+
+/* ── 공통 카드 ── */
+.card{background:#fff;border-radius:16px;padding:20px;margin-bottom:14px;box-shadow:0 1px 4px #0000000d}
 .card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid #f3f4f6}
 .card-hdr .title{font-size:14px;font-weight:700}
 .card-hdr .send-btn{padding:6px 16px;background:#111827;color:#fff;border:none;border-radius:8px;font-size:12px;cursor:pointer;font-weight:600}
-
+.card-hdr .badge{font-size:11px;color:#9ca3af;background:#f3f4f6;padding:3px 8px;border-radius:6px}
 .row{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0;font-size:14px}
 .row .lbl{color:#374151}
 .row .val{font-weight:600}
@@ -38,19 +42,35 @@ header .asof{font-size:12px;color:#9ca3af;margin-top:4px}
 .div{height:1px;background:#f3f4f6;margin:8px 0}
 .roas-g{color:#15803d}
 .roas-b{color:#dc2626}
-.ref-info{color:#9ca3af;font-size:11px;margin-left:5px}
+.empty{text-align:center;color:#9ca3af;padding:48px 0;font-size:14px}
 
+/* ── 실시간 탭 전용 ── */
+.top-btns{display:flex;gap:8px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
+.top-btns button{padding:8px 18px;border-radius:10px;border:1px solid #e5e7eb;background:#fff;font-size:13px;cursor:pointer;font-weight:600;color:#374151}
+.top-btns .send-all{background:#111827;color:#fff;border-color:#111827}
+.asof{font-size:12px;color:#9ca3af;text-align:center;margin-bottom:12px}
 [contenteditable]{cursor:text;outline:none;border-radius:4px;padding:1px 4px;min-width:30px;display:inline-block;text-align:right}
 [contenteditable]:hover{background:#eff6ff}
 [contenteditable]:focus{background:#dbeafe;box-shadow:0 0 0 2px #3b82f6}
 .ref-input{border:1px solid #fcd34d;border-radius:6px;padding:3px 8px;font-size:13px;text-align:right;width:110px;background:#fffbeb;font-family:inherit;outline:none;color:#111}
 .ref-input:focus{border-color:#f59e0b;box-shadow:0 0 0 2px #fef3c7}
 .total-ref{color:#dc2626;font-weight:700}
-
 .preview-wrap{margin-top:14px;padding-top:12px;border-top:1px solid #f3f4f6}
 .preview-label{font-size:11px;color:#9ca3af;margin-bottom:6px;font-weight:600;letter-spacing:.03em}
 .preview-textarea{width:100%;min-height:200px;font-family:'SF Mono',Menlo,monospace;font-size:12px;line-height:1.65;border:1px solid #e5e7eb;border-radius:10px;padding:12px;resize:vertical;background:#fafafa;color:#111;outline:none}
 .preview-textarea:focus{border-color:#3b82f6}
+
+/* ── 히스토리 탭 전용 ── */
+.hist-ctrl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:14px;background:#fff;padding:12px 16px;border-radius:14px;box-shadow:0 1px 4px #0000000d}
+.hist-ctrl label{font-size:12px;color:#6b7280;font-weight:600;white-space:nowrap}
+.hist-ctrl select{padding:7px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:13px;font-family:inherit;background:#fff;cursor:pointer;outline:none}
+.slot-tabs{display:flex;gap:6px;flex-wrap:wrap}
+.slot-btn{padding:6px 14px;border-radius:8px;border:1px solid #e5e7eb;background:#fff;font-size:13px;cursor:pointer;font-weight:600;color:#374151}
+.slot-btn.active{background:#111827;color:#fff;border-color:#111827}
+.summary-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.summary-chip{background:#fff;border-radius:10px;padding:10px 16px;font-size:13px;box-shadow:0 1px 4px #0000000d;flex:1;min-width:130px}
+.summary-chip .sc-lbl{color:#9ca3af;font-size:11px;font-weight:600;margin-bottom:2px}
+.summary-chip .sc-val{font-weight:700;font-size:16px}
 
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;padding:10px 20px;border-radius:12px;font-size:13px;z-index:9999;display:none;white-space:nowrap;box-shadow:0 4px 16px #0003}
 </style>
@@ -58,7 +78,7 @@ header .asof{font-size:12px;color:#9ca3af;margin-top:4px}
 <body>
 
 <div id="gate">
-  <div class="logo">🧀 체다 실시간 성과</div>
+  <div class="logo">체다 실시간 성과</div>
   <div class="sub">팀 내부용 · 비밀번호를 입력하세요</div>
   <input id="pw" type="password" placeholder="비밀번호" autofocus>
   <button onclick="unlock()">열기</button>
@@ -66,16 +86,34 @@ header .asof{font-size:12px;color:#9ca3af;margin-top:4px}
 </div>
 
 <div id="app">
-  <header>
-    <div class="h1">🧀 체다 실시간 성과</div>
-    <div class="asof" id="asof"></div>
-  </header>
-  <div class="top-btns">
-    <button class="send-all" onclick="sendAll()">📤 전체 발송</button>
-    <button onclick="refresh_()">↻ 새로고침</button>
-    <button onclick="lock()">🔒 잠금</button>
+  <header><div class="h1">체다 실시간 성과</div></header>
+
+  <div class="tab-bar">
+    <button class="tab-btn active" id="tab-live" onclick="switchTab('live')">실시간</button>
+    <button class="tab-btn" id="tab-hist" onclick="switchTab('hist')">히스토리</button>
   </div>
-  <div id="cards"></div>
+
+  <!-- 실시간 패널 -->
+  <div id="panel-live">
+    <div class="asof" id="asof"></div>
+    <div class="top-btns">
+      <button class="send-all" onclick="sendAll()">전체 발송</button>
+      <button onclick="refresh_()">새로고침</button>
+      <button onclick="lock()">잠금</button>
+    </div>
+    <div id="live-cards"></div>
+  </div>
+
+  <!-- 히스토리 패널 -->
+  <div id="panel-hist" style="display:none">
+    <div class="hist-ctrl">
+      <label>날짜</label>
+      <select id="hist-date" onchange="onDateChange()"></select>
+      <div class="slot-tabs" id="slot-tabs"></div>
+    </div>
+    <div class="summary-row" id="summary-row" style="display:none"></div>
+    <div id="hist-cards"></div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -83,15 +121,20 @@ header .asof{font-size:12px;color:#9ca3af;margin-top:4px}
 <script>
 const DAYS=['일','월','화','수','목','금','토'];
 const BRANDS=['graniesalad','basetune','hattke','salagris'];
+const BRAND_LABELS={graniesalad:'그래니살라',basetune:'베이스튠',hattke:'해트케(압력이불)',salagris:'샐러그리스'};
 const AD_CH={
   graniesalad:[['meta','메타'],['google','구글'],['tiktok','틱톡']],
   basetune:   [['meta','메타'],['google','구글'],['tiktok','틱톡'],['gfa','GFA']],
   hattke:     [['meta','메타'],['google','구글'],['tiktok','틱톡'],['gfa','GFA'],['kakao','카카오'],['naversa','네이버SA']],
   salagris:   [['meta','메타'],['google','구글'],['tiktok','틱톡']],
 };
-let CURRENT=null;
+const SLOT_LABEL={'0':'자정','12':'12시','15':'15시','16':'16시','21':'21시','23':'23시'};
+const SAVE_API='http://127.0.0.1:7701/api/save-send';
+
 const nn=x=>Number(x)||0;
 const W=n=>nn(n).toLocaleString('ko-KR');
+
+let LIVE=null, HIST_DATA={}, curTab='live', curDate='', curSlot='';
 
 function toast(msg){
   const t=document.getElementById('toast');
@@ -99,6 +142,7 @@ function toast(msg){
   clearTimeout(t._h); t._h=setTimeout(()=>t.style.display='none',2800);
 }
 
+// ── 복호화 ──
 async function decryptBlob(pw,b64){
   const raw=Uint8Array.from(atob(b64.trim()),c=>c.charCodeAt(0));
   const salt=raw.slice(0,16),iv=raw.slice(16,28),ct=raw.slice(28);
@@ -107,102 +151,112 @@ async function decryptBlob(pw,b64){
   const pt=await crypto.subtle.decrypt({name:'AES-GCM',iv},key,ct);
   return JSON.parse(new TextDecoder().decode(pt));
 }
-async function loadData(){
-  const pw=sessionStorage.getItem('rt_pw');
-  if(!pw) throw new Error('nopw');
-  const b64=await(await fetch('data/data.enc?_='+Date.now())).text();
+
+async function fetchEnc(path,pw){
+  const b64=await(await fetch(path+'?_='+Date.now())).text();
   return decryptBlob(pw,b64);
 }
 
 async function unlock(){
   const pw=document.getElementById('pw').value.trim();
   if(!pw) return;
-  sessionStorage.setItem('rt_pw',pw);
   try{
-    const d=await loadData();
+    LIVE=await fetchEnc('data/data.enc',pw);
+    // 히스토리는 백그라운드 로드 (실패해도 무시)
+    fetchEnc('data/history.enc',pw).then(d=>{HIST_DATA=d;if(curTab==='hist')initHist();}).catch(()=>{});
+    sessionStorage.setItem('rt_pw',pw);
     document.getElementById('gate').style.display='none';
     document.getElementById('app').style.display='block';
-    render(d);
+    renderLive(LIVE);
   }catch(e){
     sessionStorage.removeItem('rt_pw');
     document.getElementById('err').textContent='비밀번호가 다릅니다';
   }
 }
 function lock(){sessionStorage.removeItem('rt_pw');location.reload();}
-async function refresh_(){try{render(await loadData());toast('새로고침 완료');}catch(e){toast('오류');}}
+async function refresh_(){
+  const pw=sessionStorage.getItem('rt_pw'); if(!pw) return;
+  try{
+    LIVE=await fetchEnc('data/data.enc',pw);
+    renderLive(LIVE);
+    HIST_DATA=await fetchEnc('data/history.enc',pw);
+    if(curTab==='hist') initHist();
+    toast('새로고침 완료');
+  }catch(e){toast('오류');}
+}
 document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')unlock();});
 (function(){
   const p=new URLSearchParams(location.search).get('pw');
   if(p){sessionStorage.setItem('rt_pw',p);document.getElementById('pw').value=p;unlock();}
-  else if(sessionStorage.getItem('rt_pw')) unlock();
+  else if(sessionStorage.getItem('rt_pw')){document.getElementById('pw').value=sessionStorage.getItem('rt_pw');unlock();}
 })();
 
-// ───── 발송 메시지 생성 ─────
+// ── 탭 전환 ──
+function switchTab(tab){
+  curTab=tab;
+  document.getElementById('tab-live').classList.toggle('active',tab==='live');
+  document.getElementById('tab-hist').classList.toggle('active',tab==='hist');
+  document.getElementById('panel-live').style.display=tab==='live'?'':'none';
+  document.getElementById('panel-hist').style.display=tab==='hist'?'':'none';
+  if(tab==='hist') initHist();
+}
+
+// ════════════════════════════════════════
+// ── 실시간 탭 ──
+// ════════════════════════════════════════
 function buildMsg(bk){
-  const d=CURRENT,v=d.brands[bk];
+  const d=LIVE,v=d.brands[bk];
   const dateStr=d.date||'',at=d.at||'';
   const hhmm=at.slice(11,16);
   const dow=DAYS[new Date(at||dateStr+'T12:00:00').getDay()];
   const yy=dateStr.slice(2,4)+'/'+dateStr.slice(5,7)+'/'+dateStr.slice(8,10);
-  const WW=x=>nn(x).toLocaleString('ko-KR');
   const cafe=nn(v.cafe24Sales),cafeN=nn(v.cafe24Orders);
   const cp=nn(v.coupang1Sales),cpN=nn(v.coupang1Orders);
   const ss=nn(v.ss1Sales),ssN=nn(v.ss1Orders);
   const cafeRef=nn(v.cafe24Refund),cpRef=nn(v.coupang1Refund),ssRef=nn(v.ss1Refund);
   const cafe2=Math.max(0,cafe-cafeRef),cp2=Math.max(0,cp-cpRef),ss2=Math.max(0,ss-ssRef);
   const ad=nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
-  const salesB=cafe+cp+ss,salesA=cafe2+cp2+ss2;
-  const orders=cafeN+cpN+ssN;
+  const salesB=cafe+cp+ss,salesA=cafe2+cp2+ss2,orders=cafeN+cpN+ssN;
   const roasB=ad?Math.round(salesB/ad*100):0,roasA=ad?Math.round(salesA/ad*100):0;
   const cpa=orders?Math.round(ad/orders):0,aov=orders?Math.round(salesB/orders):0;
   const cafePct=orders?Math.round(cafeN/orders*100):0;
   const hasRef=cafeRef||cpRef||ssRef;
-  // 환불 예상 건수
   const refAov=aov||1;
   const cafeRefN=cafeRef?Math.round(cafeRef/refAov):0;
   const cpRefN=cpRef?Math.round(cpRef/refAov):0;
   const ssRefN=ssRef?Math.round(ssRef/refAov):0;
-  const L=[`[${v.label}] ${yy} (${dow}) ${hhmm}`,'',`•   광고비 ${WW(ad)}`];
-  (AD_CH[bk]||[]).forEach(([k,lab])=>{if(nn(v[k]))L.push(`    ◦   ${lab} ${WW(v[k])}`);});
-  L.push('',`•   매출 ${WW(salesB)} / ${orders}건 (환불 전)`,
-    `    ◦   자사몰 ${WW(cafe)} / ${cafeN}건`,
-    `    ◦   쿠팡 ${WW(cp)} / ${cpN}건`,
-    `    ◦   스마트스토어 ${WW(ss)} / ${ssN}건`);
+  const L=[`[${v.label}] ${yy} (${dow}) ${hhmm}`,'',`•   광고비 ${W(ad)}`];
+  (AD_CH[bk]||[]).forEach(([k,lab])=>{if(nn(v[k]))L.push(`    ◦   ${lab} ${W(v[k])}`);});
+  L.push('',`•   매출 ${W(salesB)} / ${orders}건 (환불 전)`,
+    `    ◦   자사몰 ${W(cafe)} / ${cafeN}건`,
+    `    ◦   쿠팡 ${W(cp)} / ${cpN}건`,
+    `    ◦   스마트스토어 ${W(ss)} / ${ssN}건`);
   if(hasRef){
-    const totalRef=cafeRef+cpRef+ssRef;
-    const totalRefN=totalRef?Math.round(totalRef/refAov):0;
-    L.push('',`•   매출 ${WW(salesA)} / ${orders}건 (환불 후)`,
-      `    ◦   자사몰 ${WW(cafe2)} / ${cafeN}건 (환불 ${WW(cafeRef)}원 / 예상 ${cafeRefN}건)`,
-      `    ◦   쿠팡 ${WW(cp2)} / ${cpN}건 (환불 ${WW(cpRef)}원 / 예상 ${cpRefN}건)`,
-      `    ◦   스마트스토어 ${WW(ss2)} / ${ssN}건 (환불 ${WW(ssRef)}원 / 예상 ${ssRefN}건)`,
-      `    ◦   총 환불 ${WW(totalRef)}원 / 예상 ${totalRefN}건`);
+    const totalRef=cafeRef+cpRef+ssRef,totalRefN=totalRef?Math.round(totalRef/refAov):0;
+    L.push('',`•   매출 ${W(salesA)} / ${orders}건 (환불 후)`,
+      `    ◦   자사몰 ${W(cafe2)} / ${cafeN}건 (환불 ${W(cafeRef)}원 / 예상 ${cafeRefN}건)`,
+      `    ◦   쿠팡 ${W(cp2)} / ${cpN}건 (환불 ${W(cpRef)}원 / 예상 ${cpRefN}건)`,
+      `    ◦   스마트스토어 ${W(ss2)} / ${ssN}건 (환불 ${W(ssRef)}원 / 예상 ${ssRefN}건)`,
+      `    ◦   총 환불 ${W(totalRef)}원 / 예상 ${totalRefN}건`);
   }
   L.push('',
-    `•   ROAS ${roasB}% (환불 전) / ${roasA}% (환불 후) / CPA ${WW(cpa)}`,
-    `•   객단가 ${WW(aov)}`,
+    `•   ROAS ${roasB}% (환불 전) / ${roasA}% (환불 후) / CPA ${W(cpa)}`,
+    `•   객단가 ${W(aov)}`,
     `•   결제 비율 (자사몰 ${cafePct}% / 외 ${100-cafePct}%)`);
   return L.join('\n');
 }
 
-// ───── 렌더 ─────
-function E(bk,field,val){
-  return `<span contenteditable="true" data-bk="${bk}" data-field="${field}">${W(val)}</span>`;
-}
-// 환불 전용 input — 쉼표 없는 순수 숫자, 쉼표 파싱 버그 없음
-function ERef(bk,field,val){
-  return `<input type="text" inputmode="numeric" class="ref-input" data-bk="${bk}" data-field="${field}" value="${nn(val)}">`;
-}
+function E(bk,field,val){return `<span contenteditable="true" data-bk="${bk}" data-field="${field}">${W(val)}</span>`;}
+function ERef(bk,field,val){return `<input type="text" inputmode="numeric" class="ref-input" data-bk="${bk}" data-field="${field}" value="${nn(val)}">`;}
 
-function render(d){
-  CURRENT=d;
+function renderLive(d){
+  LIVE=d;
   const at=d.at||'',dateStr=d.date||'';
   const dow=DAYS[new Date(at||dateStr+'T12:00:00').getDay()];
   const hhmm=at.slice(11,16);
   const yy=dateStr.slice(2,4)+'/'+dateStr.slice(5,7)+'/'+dateStr.slice(8,10);
   document.getElementById('asof').textContent=`${yy} (${dow}) ${hhmm} 기준`;
-  const cards=document.getElementById('cards');
-  cards.innerHTML='';
-
+  const cards=document.getElementById('live-cards'); cards.innerHTML='';
   for(const bk of BRANDS){
     const v=(d.brands||{})[bk]; if(!v) continue;
     const cafe=nn(v.cafe24Sales),cafeN=nn(v.cafe24Orders);
@@ -213,40 +267,34 @@ function render(d){
     const cp2=nn(v.coupang1V2Sales)||Math.max(0,cp-cpRef);
     const ss2=Math.max(0,ss-ssRef);
     const ad=nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
-    const salesB=cafe+cp+ss,salesA=cafe2+cp2+ss2;
-    const orders=cafeN+cpN+ssN;
+    const salesB=cafe+cp+ss,salesA=cafe2+cp2+ss2,orders=cafeN+cpN+ssN;
     const roasB=ad?Math.round(salesB/ad*100):0,roasA=ad?Math.round(salesA/ad*100):0;
     const cpa=orders?Math.round(ad/orders):0,aov=orders?Math.round(salesB/orders):0;
     const cafePct=orders?Math.round(cafeN/orders*100):0;
     const roasCls=roasA>=200?'roas-g':roasA<100?'roas-b':'';
-    const hasRef=cafeRef||cpRef||ssRef;
     const refAov=aov||1;
     const cafeRefN=cafeRef?Math.round(cafeRef/refAov):0;
     const cpRefN=cpRef?Math.round(cpRef/refAov):0;
     const ssRefN=ssRef?Math.round(ssRef/refAov):0;
-
+    const totalRef=cafeRef+cpRef+ssRef,totalRefN=totalRef?Math.round(totalRef/refAov):0;
     const adSubs=(AD_CH[bk]||[]).map(([k,lab])=>`
       <div class="sub"><span class="lbl">◦ ${lab}</span><span class="val">${E(bk,k,v[k]||0)}</span></div>`).join('');
-
-    const totalRef=cafeRef+cpRef+ssRef;
-    const totalRefN=totalRef?Math.round(totalRef/refAov):0;
     const refSection=`
       <div class="div"></div>
       <div class="row"><span class="lbl">• 매출 (환불 후)</span><span class="val" id="salesA-${bk}">${W(salesA)}</span></div>
       <div class="sub"><span class="lbl">◦ 자사몰 순매출</span><span class="val" id="cafe2-${bk}">${W(cafe2)}</span></div>
-      <div class="sub"><span class="lbl" style="color:#d97706">  └ 환불</span><span class="val">${ERef(bk,'cafe24Refund',cafeRef)} <span class="ref-info">/ 예상 <span id="cafeRefN-${bk}">${cafeRefN}</span>건</span></span></div>
+      <div class="sub"><span class="lbl" style="color:#d97706">  └ 환불</span><span class="val">${ERef(bk,'cafe24Refund',cafeRef)} <span style="font-size:12px;color:#9ca3af">/ 예상 <span id="cafeRefN-${bk}">${cafeRefN}</span>건</span></span></div>
       <div class="sub"><span class="lbl">◦ 쿠팡 순매출</span><span class="val" id="cp2-${bk}">${W(cp2)}</span></div>
-      <div class="sub"><span class="lbl" style="color:#d97706">  └ 환불</span><span class="val">${ERef(bk,'coupang1Refund',cpRef)} <span class="ref-info">/ 예상 <span id="cpRefN-${bk}">${cpRefN}</span>건</span></span></div>
+      <div class="sub"><span class="lbl" style="color:#d97706">  └ 환불</span><span class="val">${ERef(bk,'coupang1Refund',cpRef)} <span style="font-size:12px;color:#9ca3af">/ 예상 <span id="cpRefN-${bk}">${cpRefN}</span>건</span></span></div>
       <div class="sub"><span class="lbl">◦ 스마트스토어 순매출</span><span class="val" id="ss2-${bk}">${W(ss2)}</span></div>
-      <div class="sub"><span class="lbl" style="color:#d97706">  └ 환불</span><span class="val">${ERef(bk,'ss1Refund',ssRef)} <span class="ref-info">/ 예상 <span id="ssRefN-${bk}">${ssRefN}</span>건</span></span></div>
+      <div class="sub"><span class="lbl" style="color:#d97706">  └ 환불</span><span class="val">${ERef(bk,'ss1Refund',ssRef)} <span style="font-size:12px;color:#9ca3af">/ 예상 <span id="ssRefN-${bk}">${ssRefN}</span>건</span></span></div>
       <div class="sub"><span class="lbl total-ref">◦ 총 환불합계</span><span class="val total-ref" id="totalRef-${bk}">${W(totalRef)} 원 / 예상 ${totalRefN}건</span></div>`;
-
     const card=document.createElement('div');
     card.className='card'; card.id='card-'+bk;
     card.innerHTML=`
       <div class="card-hdr">
         <span class="title">[${v.label}] ${yy} (${dow}) ${hhmm}</span>
-        <button class="send-btn" onclick="sendBrand('${bk}')">📤 발송</button>
+        <button class="send-btn" onclick="sendBrand('${bk}')">발송</button>
       </div>
       <div class="row"><span class="lbl">• 광고비</span><span class="val" id="ad-${bk}">${W(ad)}</span></div>
       ${adSubs}
@@ -270,7 +318,7 @@ function render(d){
   }
 }
 
-// ───── 숫자 편집: focus→쉼표제거, blur→쉼표복원, input→재계산 ─────
+// 숫자 편집
 document.addEventListener('focus',e=>{
   const el=e.target.closest('[data-field]');
   if(!el||el.contentEditable!=='true') return;
@@ -279,113 +327,218 @@ document.addEventListener('focus',e=>{
   const r=document.createRange(); r.selectNodeContents(el); r.collapse(false);
   const s=window.getSelection(); s.removeAllRanges(); s.addRange(r);
 },true);
-
 document.addEventListener('blur',e=>{
   const el=e.target.closest('[data-field]');
   if(!el||el.contentEditable!=='true') return;
   const raw=parseInt((el.innerText||'').replace(/[^0-9]/g,''))||0;
   el.textContent=W(raw);
 },true);
-
-// contenteditable (광고비·매출)
 document.addEventListener('input',e=>{
   const el=e.target.closest('[data-field]');
   if(!el||el.contentEditable!=='true') return;
   const bk=el.dataset.bk,field=el.dataset.field;
   const raw=parseInt((el.innerText||'').replace(/[^0-9]/g,''))||0;
-  if(!CURRENT||!CURRENT.brands[bk]) return;
-  CURRENT.brands[bk][field]=raw;
-  recalc(bk);
+  if(!LIVE||!LIVE.brands[bk]) return;
+  LIVE.brands[bk][field]=raw; recalc(bk);
 });
-
-// input[type=text] 환불 필드
 document.addEventListener('input',e=>{
-  const el=e.target.closest('.ref-input[data-field]');
-  if(!el) return;
+  const el=e.target.closest('.ref-input[data-field]'); if(!el) return;
   const bk=el.dataset.bk,field=el.dataset.field;
   const raw=parseInt((el.value||'').replace(/[^0-9]/g,''))||0;
-  if(!CURRENT||!CURRENT.brands[bk]) return;
-  CURRENT.brands[bk][field]=raw;
-  recalc(bk);
+  if(!LIVE||!LIVE.brands[bk]) return;
+  LIVE.brands[bk][field]=raw; recalc(bk);
 });
 
 function recalc(bk){
-  const v=CURRENT.brands[bk];
+  const v=LIVE.brands[bk];
   const cafe=nn(v.cafe24Sales),cafeN=nn(v.cafe24Orders);
   const cp=nn(v.coupang1Sales),cpN=nn(v.coupang1Orders);
   const ss=nn(v.ss1Sales),ssN=nn(v.ss1Orders);
   const cafeRef=nn(v.cafe24Refund),cpRef=nn(v.coupang1Refund),ssRef=nn(v.ss1Refund);
   const ad=nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
   const cafe2=Math.max(0,cafe-cafeRef),cp2=Math.max(0,cp-cpRef),ss2=Math.max(0,ss-ssRef);
-  const salesB=cafe+cp+ss,salesA=cafe2+cp2+ss2;
-  const orders=cafeN+cpN+ssN;
+  const salesB=cafe+cp+ss,salesA=cafe2+cp2+ss2,orders=cafeN+cpN+ssN;
   const roasB=ad?Math.round(salesB/ad*100):0,roasA=ad?Math.round(salesA/ad*100):0;
   const cpa=orders?Math.round(ad/orders):0,aov=orders?Math.round(salesB/orders):0;
   const roasCls=roasA>=200?'roas-g':roasA<100?'roas-b':'';
   const refAov=aov||1;
   const $=id=>document.getElementById(id);
-  const set=(id,v)=>{const el=$(id);if(el)el.textContent=v;};
-  set('ad-'+bk,W(ad)); set('salesB-'+bk,W(salesB));
-  set('salesA-'+bk,W(salesA));
-  set('cafe2-'+bk,W(cafe2)); set('cp2-'+bk,W(cp2)); set('ss2-'+bk,W(ss));
-  set('cafeRefN-'+bk, cafeRef?Math.round(cafeRef/refAov):0);
-  set('cpRefN-'+bk,   cpRef?Math.round(cpRef/refAov):0);
-  set('ssRefN-'+bk,   ssRef?Math.round(ssRef/refAov):0);
-  const totalRef=cafeRef+cpRef+ssRef;
-  const totalRefN=totalRef?Math.round(totalRef/refAov):0;
-  set('totalRef-'+bk, `${W(totalRef)} 원 / 예상 ${totalRefN}건`);
+  const set=(id,val)=>{const el=$(id);if(el)el.textContent=val;};
+  set('ad-'+bk,W(ad)); set('salesB-'+bk,W(salesB)); set('salesA-'+bk,W(salesA));
+  set('cafe2-'+bk,W(cafe2)); set('cp2-'+bk,W(cp2)); set('ss2-'+bk,W(ss2));
+  set('cafeRefN-'+bk,cafeRef?Math.round(cafeRef/refAov):0);
+  set('cpRefN-'+bk,cpRef?Math.round(cpRef/refAov):0);
+  set('ssRefN-'+bk,ssRef?Math.round(ssRef/refAov):0);
+  const totalRef=cafeRef+cpRef+ssRef,totalRefN=totalRef?Math.round(totalRef/refAov):0;
+  set('totalRef-'+bk,`${W(totalRef)} 원 / 예상 ${totalRefN}건`);
   set('cpa-'+bk,W(cpa)); set('aov-'+bk,W(aov));
   const ri=$('roas-'+bk); if(ri){ri.textContent=`${roasB}% / ${roasA}%`;ri.className='val '+roasCls;}
-  // 미리보기 항상 자동 반영
   const ta=$('preview-'+bk); if(ta) ta.value=buildMsg(bk);
 }
 
-// ───── 슬랙 발송 ─────
-const SAVE_API='http://127.0.0.1:7701/api/save-send';
-
+// ── 슬랙 발송 ──
 async function saveToHistory(bk){
-  // 발송 성공 후 로컬 save_server.py에 저장 요청
   try{
-    const d=CURRENT;
-    const payload={date:d.date,slot:d.slot||'0',brands:{[bk]:d.brands[bk]}};
+    const d=LIVE;
     await fetch(SAVE_API,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)});
-  }catch(e){/* 로컬 서버 미실행 시 무시 */}
+      body:JSON.stringify({date:d.date,slot:d.slot||'0',brands:{[bk]:d.brands[bk]}})});
+  }catch(e){}
 }
 
 async function sendBrand(bk){
-  const s=CURRENT&&CURRENT._slack;
+  const s=LIVE&&LIVE._slack;
   if(!s||!s.botToken){toast('슬랙 토큰 없음');return;}
   const ch=s.channels&&s.channels[bk];
   if(!ch){toast('지표방 미설정');return;}
   const ta=document.getElementById('preview-'+bk);
   const text=(ta?ta.value:buildMsg(bk)).trim();
   if(!text){toast('메시지 없음');return;}
-  const body=new URLSearchParams({token:s.botToken,channel:ch,text,username:s.username||'실시간 성과 알림 봇',icon_emoji:':bar_chart:'});
   try{
-    const r=await fetch('https://slack.com/api/chat.postMessage',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','Authorization':'Bearer '+s.botToken},body:new URLSearchParams({channel:ch,text,username:s.username||'실시간 성과 알림 봇',icon_emoji:':bar_chart:'}).toString()});
+    const r=await fetch('https://slack.com/api/chat.postMessage',{method:'POST',
+      headers:{'Content-Type':'application/x-www-form-urlencoded','Authorization':'Bearer '+s.botToken},
+      body:new URLSearchParams({channel:ch,text,username:s.username||'실시간 성과 알림 봇',icon_emoji:':bar_chart:'}).toString()});
     const rj=await r.json().catch(()=>({}));
-    if(rj.ok||r.ok){
-      toast(`${CURRENT.brands[bk].label} 발송 완료`);
-      await saveToHistory(bk);
-    } else {
-      toast(`발송 실패: ${rj.error||'unknown'}`);
-    }
+    if(rj.ok){toast(`${LIVE.brands[bk].label} 발송 완료`);await saveToHistory(bk);}
+    else toast(`발송 실패: ${rj.error||'unknown'}`);
   }catch(e){
-    // no-cors fallback: 응답 읽기 불가이므로 발송 완료로 간주하고 저장
-    toast(`${CURRENT.brands[bk]?.label||bk} 발송 완료`);
+    toast(`${LIVE.brands[bk]?.label||bk} 발송 완료`);
     await saveToHistory(bk);
   }
 }
 
 async function sendAll(){
-  const s=CURRENT&&CURRENT._slack;
+  const s=LIVE&&LIVE._slack;
   if(!s||!s.botToken){toast('슬랙 토큰 없음');return;}
   let n=0;
   for(const bk of BRANDS){
     if(s.channels&&s.channels[bk]){await sendBrand(bk);n++;await new Promise(r=>setTimeout(r,1500));}
   }
   toast(`전체 발송 완료 (${n}건)`);
+}
+
+// ════════════════════════════════════════
+// ── 히스토리 탭 ──
+// ════════════════════════════════════════
+function initHist(){
+  if(!Object.keys(HIST_DATA).length){
+    document.getElementById('hist-cards').innerHTML='<div class="empty">히스토리 데이터를 불러오는 중...</div>';
+    return;
+  }
+  const dates=Object.keys(HIST_DATA).sort().reverse();
+  const sel=document.getElementById('hist-date');
+  const prev=sel.value;
+  sel.innerHTML='';
+  for(const d of dates){
+    const dt=new Date(d+'T12:00:00');
+    const dow=DAYS[dt.getDay()];
+    const label=d.slice(2).replace(/-/g,'/')+' ('+dow+')';
+    sel.appendChild(Object.assign(document.createElement('option'),{value:d,textContent:label}));
+  }
+  if(prev&&dates.includes(prev)) sel.value=prev;
+  onDateChange();
+}
+
+function onDateChange(){
+  curDate=document.getElementById('hist-date').value;
+  if(!curDate) return;
+  const slots=Object.keys(HIST_DATA[curDate]||{}).sort((a,b)=>Number(a)-Number(b));
+  const tabs=document.getElementById('slot-tabs');
+  tabs.innerHTML='';
+  for(const s of slots){
+    const btn=document.createElement('button');
+    btn.className='slot-btn';
+    btn.textContent=SLOT_LABEL[s]||(s.padStart(2,'0')+':00');
+    btn.dataset.slot=s;
+    btn.onclick=()=>selectSlot(s);
+    tabs.appendChild(btn);
+  }
+  if(slots.length) selectSlot(slots[slots.length-1]);
+  else{document.getElementById('hist-cards').innerHTML='<div class="empty">데이터 없음</div>';
+       document.getElementById('summary-row').style.display='none';}
+}
+
+function selectSlot(slot){
+  curSlot=slot;
+  document.querySelectorAll('.slot-btn').forEach(b=>b.classList.toggle('active',b.dataset.slot===slot));
+  renderHistCards();
+}
+
+function renderHistCards(){
+  const brands=(HIST_DATA[curDate]||{})[curSlot]||{};
+  const keys=BRANDS.filter(bk=>brands[bk]);
+  if(!keys.length){
+    document.getElementById('hist-cards').innerHTML='<div class="empty">데이터 없음</div>';
+    document.getElementById('summary-row').style.display='none';
+    return;
+  }
+  // 요약
+  let totalAd=0,totalSales=0,totalOrders=0;
+  for(const bk of keys){
+    const v=brands[bk];
+    totalAd+=nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
+    totalSales+=nn(v.cafe24Sales)+nn(v.coupang1Sales)+nn(v.ss1Sales);
+    totalOrders+=nn(v.cafe24Orders)+nn(v.coupang1Orders)+nn(v.ss1Orders);
+  }
+  const totalRoas=totalAd?Math.round(totalSales/totalAd*100):0;
+  const sr=document.getElementById('summary-row');
+  sr.style.display='flex';
+  sr.innerHTML=`
+    <div class="summary-chip"><div class="sc-lbl">전체 광고비</div><div class="sc-val">${W(totalAd)}</div></div>
+    <div class="summary-chip"><div class="sc-lbl">전체 매출</div><div class="sc-val">${W(totalSales)}</div></div>
+    <div class="summary-chip"><div class="sc-lbl">전체 주문</div><div class="sc-val">${totalOrders}건</div></div>
+    <div class="summary-chip"><div class="sc-lbl">합산 ROAS</div><div class="sc-val ${totalRoas>=200?'roas-g':totalRoas<100?'roas-b':''}">${totalRoas}%</div></div>
+  `;
+  const cards=document.getElementById('hist-cards'); cards.innerHTML='';
+  for(const bk of BRANDS){
+    const v=brands[bk]; if(!v) continue;
+    const cafe=nn(v.cafe24Sales),cafeN=nn(v.cafe24Orders);
+    const cp=nn(v.coupang1Sales),cpN=nn(v.coupang1Orders);
+    const ss=nn(v.ss1Sales),ssN=nn(v.ss1Orders);
+    const cafeRef=nn(v.cafe24Refund),cpRef=nn(v.coupang1Refund),ssRef=nn(v.ss1Refund);
+    const cafe2=nn(v.cafe24V2Sales)||Math.max(0,cafe-cafeRef);
+    const cp2=nn(v.coupang1V2Sales)||Math.max(0,cp-cpRef);
+    const ss2=Math.max(0,ss-ssRef);
+    const ad=nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
+    const salesB=cafe+cp+ss,salesA=cafe2+cp2+ss2,orders=cafeN+cpN+ssN;
+    const roasB=ad?Math.round(salesB/ad*100):0,roasA=ad?Math.round(salesA/ad*100):0;
+    const cpa=orders?Math.round(ad/orders):0,aov=orders?Math.round(salesB/orders):0;
+    const cafePct=orders?Math.round(cafeN/orders*100):0;
+    const roasCls=roasA>=200?'roas-g':roasA<100?'roas-b':'';
+    const hasRef=cafeRef||cpRef||ssRef;
+    const refAov=aov||1;
+    const totalRef=cafeRef+cpRef+ssRef,totalRefN=totalRef?Math.round(totalRef/refAov):0;
+    const adSubs=(AD_CH[bk]||[]).filter(([k])=>nn(v[k])).map(([k,lab])=>
+      `<div class="sub"><span class="lbl">${lab}</span><span class="val">${W(v[k])}</span></div>`).join('');
+    const refSection=hasRef?`
+      <div class="div"></div>
+      <div class="row"><span class="lbl">매출 (환불 후)</span><span class="val">${W(salesA)}</span></div>
+      <div class="sub"><span class="lbl">자사몰</span><span class="val">${W(cafe2)} / ${cafeN}건 (환불 ${W(cafeRef)})</span></div>
+      <div class="sub"><span class="lbl">쿠팡</span><span class="val">${W(cp2)} / ${cpN}건${cpRef?` (환불 ${W(cpRef)})`:''})</span></div>
+      <div class="sub"><span class="lbl">스마트스토어</span><span class="val">${W(ss2)} / ${ssN}건${ssRef?` (환불 ${W(ssRef)})`:''})</span></div>
+      <div class="sub"><span class="lbl" style="color:#dc2626">총 환불</span><span class="val" style="color:#dc2626">${W(totalRef)} / 예상 ${totalRefN}건</span></div>`:'';
+    const card=document.createElement('div');
+    card.className='card';
+    card.innerHTML=`
+      <div class="card-hdr">
+        <span class="title">${v.label||BRAND_LABELS[bk]||bk}</span>
+        <span class="badge">ROAS ${roasB}%${hasRef?` / ${roasA}%`:''}</span>
+      </div>
+      <div class="row"><span class="lbl">광고비</span><span class="val">${W(ad)}</span></div>
+      ${adSubs}
+      <div class="div"></div>
+      <div class="row"><span class="lbl">매출 (환불 전)</span><span class="val">${W(salesB)} / ${orders}건</span></div>
+      <div class="sub"><span class="lbl">자사몰</span><span class="val">${W(cafe)} / ${cafeN}건</span></div>
+      <div class="sub"><span class="lbl">쿠팡</span><span class="val">${W(cp)} / ${cpN}건</span></div>
+      <div class="sub"><span class="lbl">스마트스토어</span><span class="val">${W(ss)} / ${ssN}건</span></div>
+      ${refSection}
+      <div class="div"></div>
+      <div class="row"><span class="lbl">ROAS (전/후)</span><span class="val ${roasCls}">${roasB}% / ${roasA}%</span></div>
+      <div class="row"><span class="lbl">CPA</span><span class="val">${W(cpa)}</span></div>
+      <div class="row"><span class="lbl">객단가</span><span class="val">${W(aov)}</span></div>
+      <div class="row"><span class="lbl">결제 비율</span><span class="val">자사몰 ${cafePct}% / 외 ${100-cafePct}%</span></div>
+    `;
+    cards.appendChild(card);
+  }
 }
 </script>
 </body>
