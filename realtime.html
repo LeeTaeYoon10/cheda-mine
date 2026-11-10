@@ -416,6 +416,23 @@ async function sendAll(){
   toast(`전체 발송 완료 (${n}건)`);
 }
 
+// ── 자동 폴링: 5분마다 data.enc 갱신 ──
+let _lastEnc='';
+async function autoPoll(){
+  const pw=sessionStorage.getItem('rt_pw'); if(!pw) return;
+  try{
+    const b64=await(await fetch('data/data.enc?_='+Date.now())).text();
+    if(b64===_lastEnc) return;   // 변경 없으면 렌더 스킵
+    _lastEnc=b64;
+    const d=await decryptBlob(pw,b64);
+    LIVE=d;
+    if(curTab==='live') renderLive(d);
+    // 히스토리도 갱신
+    fetchEnc('data/history.enc',pw).then(h=>{HIST_DATA=h;if(curTab==='hist')initHist();}).catch(()=>{});
+  }catch(e){}
+}
+setInterval(autoPoll, 5*60*1000);   // 5분마다
+
 // ════════════════════════════════════════
 // ── 히스토리 탭 ──
 // ════════════════════════════════════════
