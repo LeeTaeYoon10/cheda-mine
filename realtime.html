@@ -377,41 +377,48 @@ function recalc(bk){
 }
 
 // ── 슬랙 발송 ──
-async function saveToHistory(bk){
-  try{
-    const d=LIVE;
-    await fetch(SAVE_API,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({date:d.date,slot:d.slot||'0',brands:{[bk]:d.brands[bk]}})});
-  }catch(e){}
-}
+// save_server.py(localhost:7701)를 통해 발송 → CORS 우회 + 히스토리 저장 통합
+const SEND_SLACK_API = 'http://127.0.0.1:7701/api/send-slack';
 
 async function sendBrand(bk){
-  const s=LIVE&&LIVE._slack;
-  if(!s||!s.botToken){toast('슬랙 토큰 없음');return;}
-  const ch=s.channels&&s.channels[bk];
-  if(!ch){toast('지표방 미설정');return;}
+  const d=LIVE;
+  if(!d){toast('데이터 없음');return;}
+  const label=BRAND_LABELS[bk]||bk;
   const ta=document.getElementById('preview-'+bk);
   const text=(ta?ta.value:buildMsg(bk)).trim();
   if(!text){toast('메시지 없음');return;}
   try{
-    const r=await fetch('https://slack.com/api/chat.postMessage',{method:'POST',
-      headers:{'Content-Type':'application/x-www-form-urlencoded','Authorization':'Bearer '+s.botToken},
-      body:new URLSearchParams({channel:ch,text,username:s.username||'실시간 성과 알림 봇',icon_emoji:':bar_chart:'}).toString()});
+    const r=await fetch(SEND_SLACK_API,{method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({brand:bk,text,date:d.date,slot:d.slot||'0',brandData:d.brands[bk]})});
     const rj=await r.json().catch(()=>({}));
-    if(rj.ok){toast(`${LIVE.brands[bk].label} 발송 완료`);await saveToHistory(bk);}
-    else toast(`발송 실패: ${rj.error||'unknown'}`);
+    if(rj.ok) toast(`${label} 발송 완료`);
+    else toast(`발송 실패: ${rj.error||'서버 오류'}`);
   }catch(e){
-    toast(`${LIVE.brands[bk]?.label||bk} 발송 완료`);
-    await saveToHistory(bk);
+    // localhost 서버 미실행 시 직접 Slack API 폴백
+    const s=d._slack;
+    if(!s||!s.botToken){toast('발송 실패: save_server.py 미실행');return;}
+    const ch=s.channels&&s.channels[bk];
+    if(!ch){toast('발송 실패: 채널 미설정');return;}
+    try{
+      const r2=await fetch('https://slack.com/api/chat.postMessage',{method:'POST',
+        headers:{'Content-Type':'application/x-www-form-urlencoded','Authorization':'Bearer '+s.botToken},
+        body:new URLSearchParams({channel:ch,text,username:s.username||'실시간 성과 알림 봇',icon_emoji:':bar_chart:'}).toString()});
+      const rj2=await r2.json().catch(()=>({}));
+      if(rj2.ok) toast(`${label} 발송 완료 (직접)`);
+      else toast(`발송 실패: ${rj2.error||'unknown'}`);
+    }catch(e2){
+      toast(`발송 실패: ${e2.message||'네트워크 오류'}`);
+    }
   }
 }
 
 async function sendAll(){
-  const s=LIVE&&LIVE._slack;
-  if(!s||!s.botToken){toast('슬랙 토큰 없음');return;}
+  if(!LIVE){toast('데이터 없음');return;}
   let n=0;
   for(const bk of BRANDS){
-    if(s.channels&&s.channels[bk]){await sendBrand(bk);n++;await new Promise(r=>setTimeout(r,1500));}
+    await sendBrand(bk);n++;
+    await new Promise(r=>setTimeout(r,1500));
   }
   toast(`전체 발송 완료 (${n}건)`);
 }
