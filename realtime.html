@@ -204,6 +204,8 @@ function switchTab(tab){
 // ════════════════════════════════════════
 // ── 실시간 탭 ──
 // ════════════════════════════════════════
+// 채널별 환불 예상 건수 = 환불금액 / 해당 채널 객단가(환불 전 매출/건수)
+function refN(ref,sales,n){const a=n?sales/n:0;return(ref&&a)?Math.min(n,Math.round(ref/a)):0;}
 function buildMsg(bk){
   const d=LIVE,v=d.brands[bk];
   const dateStr=d.date||'',at=d.at||'';
@@ -221,10 +223,9 @@ function buildMsg(bk){
   const cpa=orders?Math.round(ad/orders):0,aov=orders?Math.round(salesB/orders):0;
   const cafePct=orders?Math.round(cafeN/orders*100):0;
   const hasRef=cafeRef||cpRef||ssRef;
-  const refAov=aov||1;
-  const cafeRefN=cafeRef?Math.round(cafeRef/refAov):0;
-  const cpRefN=cpRef?Math.round(cpRef/refAov):0;
-  const ssRefN=ssRef?Math.round(ssRef/refAov):0;
+  const cafeRefN=refN(cafeRef,cafe,cafeN),cpRefN=refN(cpRef,cp,cpN),ssRefN=refN(ssRef,ss,ssN);
+  const cafeN2=Math.max(0,cafeN-cafeRefN),cpN2=Math.max(0,cpN-cpRefN),ssN2=Math.max(0,ssN-ssRefN);
+  const orders2=cafeN2+cpN2+ssN2;
   const L=[`[${v.label}] ${yy} (${dow}) ${hhmm}`,'',`•   광고비 ${W(ad)}`];
   (AD_CH[bk]||[]).forEach(([k,lab])=>{if(nn(v[k]))L.push(`    ◦   ${lab} ${W(v[k])}`);});
   L.push('',`•   매출 ${W(salesB)} / ${orders}건 (환불 전)`,
@@ -232,11 +233,11 @@ function buildMsg(bk){
     `    ◦   쿠팡 ${W(cp)} / ${cpN}건`,
     `    ◦   스마트스토어 ${W(ss)} / ${ssN}건`);
   if(hasRef){
-    const totalRef=cafeRef+cpRef+ssRef,totalRefN=totalRef?Math.round(totalRef/refAov):0;
-    L.push('',`•   매출 ${W(salesA)} / ${orders}건 (환불 후)`,
-      `    ◦   자사몰 ${W(cafe2)} / ${cafeN}건 (환불 ${W(cafeRef)}원 / 예상 ${cafeRefN}건)`,
-      `    ◦   쿠팡 ${W(cp2)} / ${cpN}건 (환불 ${W(cpRef)}원 / 예상 ${cpRefN}건)`,
-      `    ◦   스마트스토어 ${W(ss2)} / ${ssN}건 (환불 ${W(ssRef)}원 / 예상 ${ssRefN}건)`,
+    const totalRef=cafeRef+cpRef+ssRef,totalRefN=cafeRefN+cpRefN+ssRefN;
+    L.push('',`•   매출 ${W(salesA)} / ${orders2}건 (환불 후)`,
+      `    ◦   자사몰 ${W(cafe2)} / ${cafeN2}건 (환불 ${W(cafeRef)}원 / 예상 ${cafeRefN}건)`,
+      `    ◦   쿠팡 ${W(cp2)} / ${cpN2}건 (환불 ${W(cpRef)}원 / 예상 ${cpRefN}건)`,
+      `    ◦   스마트스토어 ${W(ss2)} / ${ssN2}건 (환불 ${W(ssRef)}원 / 예상 ${ssRefN}건)`,
       `    ◦   총 환불 ${W(totalRef)}원 / 예상 ${totalRefN}건`);
   }
   L.push('',
@@ -272,11 +273,8 @@ function renderLive(d){
     const cpa=orders?Math.round(ad/orders):0,aov=orders?Math.round(salesB/orders):0;
     const cafePct=orders?Math.round(cafeN/orders*100):0;
     const roasCls=roasA>=200?'roas-g':roasA<100?'roas-b':'';
-    const refAov=aov||1;
-    const cafeRefN=cafeRef?Math.round(cafeRef/refAov):0;
-    const cpRefN=cpRef?Math.round(cpRef/refAov):0;
-    const ssRefN=ssRef?Math.round(ssRef/refAov):0;
-    const totalRef=cafeRef+cpRef+ssRef,totalRefN=totalRef?Math.round(totalRef/refAov):0;
+    const cafeRefN=refN(cafeRef,cafe,cafeN),cpRefN=refN(cpRef,cp,cpN),ssRefN=refN(ssRef,ss,ssN);
+    const totalRef=cafeRef+cpRef+ssRef,totalRefN=cafeRefN+cpRefN+ssRefN;
     const adSubs=(AD_CH[bk]||[]).map(([k,lab])=>`
       <div class="sub"><span class="lbl">◦ ${lab}</span><span class="val">${E(bk,k,v[k]||0)}</span></div>`).join('');
     const refSection=`
@@ -361,15 +359,13 @@ function recalc(bk){
   const roasB=ad?Math.round(salesB/ad*100):0,roasA=ad?Math.round(salesA/ad*100):0;
   const cpa=orders?Math.round(ad/orders):0,aov=orders?Math.round(salesB/orders):0;
   const roasCls=roasA>=200?'roas-g':roasA<100?'roas-b':'';
-  const refAov=aov||1;
+  const cafeRefN=refN(cafeRef,cafe,cafeN),cpRefN=refN(cpRef,cp,cpN),ssRefN=refN(ssRef,ss,ssN);
   const $=id=>document.getElementById(id);
   const set=(id,val)=>{const el=$(id);if(el)el.textContent=val;};
   set('ad-'+bk,W(ad)); set('salesB-'+bk,W(salesB)); set('salesA-'+bk,W(salesA));
   set('cafe2-'+bk,W(cafe2)); set('cp2-'+bk,W(cp2)); set('ss2-'+bk,W(ss2));
-  set('cafeRefN-'+bk,cafeRef?Math.round(cafeRef/refAov):0);
-  set('cpRefN-'+bk,cpRef?Math.round(cpRef/refAov):0);
-  set('ssRefN-'+bk,ssRef?Math.round(ssRef/refAov):0);
-  const totalRef=cafeRef+cpRef+ssRef,totalRefN=totalRef?Math.round(totalRef/refAov):0;
+  set('cafeRefN-'+bk,cafeRefN); set('cpRefN-'+bk,cpRefN); set('ssRefN-'+bk,ssRefN);
+  const totalRef=cafeRef+cpRef+ssRef,totalRefN=cafeRefN+cpRefN+ssRefN;
   set('totalRef-'+bk,`${W(totalRef)} 원 / 예상 ${totalRefN}건`);
   set('cpa-'+bk,W(cpa)); set('aov-'+bk,W(aov));
   const ri=$('roas-'+bk); if(ri){ri.textContent=`${roasB}% / ${roasA}%`;ri.className='val '+roasCls;}
@@ -529,16 +525,16 @@ function renderHistCards(){
     const cafePct=orders?Math.round(cafeN/orders*100):0;
     const roasCls=roasA>=200?'roas-g':roasA<100?'roas-b':'';
     const hasRef=cafeRef||cpRef||ssRef;
-    const refAov=aov||1;
-    const totalRef=cafeRef+cpRef+ssRef,totalRefN=totalRef?Math.round(totalRef/refAov):0;
+    const cafeRefN=refN(cafeRef,cafe,cafeN),cpRefN=refN(cpRef,cp,cpN),ssRefN=refN(ssRef,ss,ssN);
+    const totalRef=cafeRef+cpRef+ssRef,totalRefN=cafeRefN+cpRefN+ssRefN;
     const adSubs=(AD_CH[bk]||[]).filter(([k])=>nn(v[k])).map(([k,lab])=>
       `<div class="sub"><span class="lbl">${lab}</span><span class="val">${W(v[k])}</span></div>`).join('');
     const refSection=hasRef?`
       <div class="div"></div>
       <div class="row"><span class="lbl">매출 (환불 후)</span><span class="val">${W(salesA)}</span></div>
-      <div class="sub"><span class="lbl">자사몰</span><span class="val">${W(cafe2)} / ${cafeN}건 (환불 ${W(cafeRef)})</span></div>
-      <div class="sub"><span class="lbl">쿠팡</span><span class="val">${W(cp2)} / ${cpN}건${cpRef?` (환불 ${W(cpRef)})`:''})</span></div>
-      <div class="sub"><span class="lbl">스마트스토어</span><span class="val">${W(ss2)} / ${ssN}건${ssRef?` (환불 ${W(ssRef)})`:''})</span></div>
+      <div class="sub"><span class="lbl">자사몰</span><span class="val">${W(cafe2)} / ${Math.max(0,cafeN-cafeRefN)}건 (환불 ${W(cafeRef)})</span></div>
+      <div class="sub"><span class="lbl">쿠팡</span><span class="val">${W(cp2)} / ${Math.max(0,cpN-cpRefN)}건${cpRef?` (환불 ${W(cpRef)})`:''}</span></div>
+      <div class="sub"><span class="lbl">스마트스토어</span><span class="val">${W(ss2)} / ${Math.max(0,ssN-ssRefN)}건${ssRef?` (환불 ${W(ssRef)})`:''}</span></div>
       <div class="sub"><span class="lbl" style="color:#dc2626">총 환불</span><span class="val" style="color:#dc2626">${W(totalRef)} / 예상 ${totalRefN}건</span></div>`:'';
     const card=document.createElement('div');
     card.className='card';
