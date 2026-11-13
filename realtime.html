@@ -216,7 +216,7 @@ function buildMsg(bk){
   const cp=nn(v.coupang1Sales),cpN=nn(v.coupang1Orders);
   const ss=nn(v.ss1Sales),ssN=nn(v.ss1Orders);
   const cafeRef=nn(v.cafe24Refund),cpRef=nn(v.coupang1Refund),ssRef=nn(v.ss1Refund);
-  const cafe2=Math.max(0,cafe-cafeRef),cp2=Math.max(0,cp-cpRef),ss2=Math.max(0,ss-ssRef);
+  const cafe2=(cafe-cafeRef),cp2=Math.max(0,cp-cpRef),ss2=Math.max(0,ss-ssRef);
   const ad=nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
   const salesB=cafe+cp+ss,salesA=cafe2+cp2+ss2,orders=cafeN+cpN+ssN;
   const roasB=ad?Math.round(salesB/ad*100):0,roasA=ad?Math.round(salesA/ad*100):0;
@@ -264,7 +264,7 @@ function renderLive(d){
     const cp=nn(v.coupang1Sales),cpN=nn(v.coupang1Orders);
     const ss=nn(v.ss1Sales),ssN=nn(v.ss1Orders);
     const cafeRef=nn(v.cafe24Refund),cpRef=nn(v.coupang1Refund),ssRef=nn(v.ss1Refund);
-    const cafe2=nn(v.cafe24V2Sales)||Math.max(0,cafe-cafeRef);
+    const cafe2=nn(v.cafe24V2Sales)||(cafe-cafeRef);
     const cp2=nn(v.coupang1V2Sales)||Math.max(0,cp-cpRef);
     const ss2=Math.max(0,ss-ssRef);
     const ad=nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
@@ -354,7 +354,7 @@ function recalc(bk){
   const ss=nn(v.ss1Sales),ssN=nn(v.ss1Orders);
   const cafeRef=nn(v.cafe24Refund),cpRef=nn(v.coupang1Refund),ssRef=nn(v.ss1Refund);
   const ad=nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
-  const cafe2=Math.max(0,cafe-cafeRef),cp2=Math.max(0,cp-cpRef),ss2=Math.max(0,ss-ssRef);
+  const cafe2=(cafe-cafeRef),cp2=Math.max(0,cp-cpRef),ss2=Math.max(0,ss-ssRef);
   const salesB=cafe+cp+ss,salesA=cafe2+cp2+ss2,orders=cafeN+cpN+ssN;
   const roasB=ad?Math.round(salesB/ad*100):0,roasA=ad?Math.round(salesA/ad*100):0;
   const cpa=orders?Math.round(ad/orders):0,aov=orders?Math.round(salesB/orders):0;
@@ -515,7 +515,7 @@ function renderHistCards(){
     const cp=nn(v.coupang1Sales),cpN=nn(v.coupang1Orders);
     const ss=nn(v.ss1Sales),ssN=nn(v.ss1Orders);
     const cafeRef=nn(v.cafe24Refund),cpRef=nn(v.coupang1Refund),ssRef=nn(v.ss1Refund);
-    const cafe2=nn(v.cafe24V2Sales)||Math.max(0,cafe-cafeRef);
+    const cafe2=nn(v.cafe24V2Sales)||(cafe-cafeRef);
     const cp2=nn(v.coupang1V2Sales)||Math.max(0,cp-cpRef);
     const ss2=Math.max(0,ss-ssRef);
     const ad=nn(v.meta)+nn(v.google)+nn(v.tiktok)+nn(v.gfa)+nn(v.kakao)+nn(v.naversa);
