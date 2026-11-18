@@ -99,6 +99,8 @@ header .h1{font-size:19px;font-weight:800}
     <div class="top-btns">
       <button class="send-all" onclick="sendAll()">전체 발송</button>
       <button onclick="refresh_()">새로고침</button>
+      <select id="rc-brand" style="padding:6px"><option value="">전체</option><option value="graniesalad">그래니살라</option><option value="basetune">베이스튠</option><option value="hattke">해트케</option><option value="salagris">샐러그리스</option></select>
+      <button id="rc-btn" onclick="recollect()">지금 재수집</button>
       <button onclick="lock()">잠금</button>
     </div>
     <div id="live-cards"></div>
@@ -183,6 +185,26 @@ async function refresh_(){
     if(curTab==='hist') initHist();
     toast('새로고침 완료');
   }catch(e){toast('오류');}
+}
+// 지금 재수집: 이 PC의 save_server(127.0.0.1:7701)가 실행 중일 때만 동작
+async function recollect(){
+  const bk=document.getElementById('rc-brand').value, btn=document.getElementById('rc-btn');
+  const api='http://127.0.0.1:7701/api/recollect';
+  try{
+    const r=await(await fetch(api,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({brand:bk||null})})).json();
+    if(!r.ok){toast(r.error||'재수집 실패');return;}
+  }catch(e){toast('재수집 서버 미연결 (이 기능은 서버 PC에서만 동작)');return;}
+  btn.disabled=true;btn.textContent='재수집 중…';
+  const t0=Date.now();
+  const iv=setInterval(async()=>{
+    try{
+      const s=await(await fetch(api+'-status',{method:'POST'})).json();
+      if(!s.running){clearInterval(iv);btn.disabled=false;btn.textContent='지금 재수집';
+        toast(s.ok?'재수집 완료 — 곧 반영':'재수집 오류: '+(s.msg||''));
+        if(s.ok) setTimeout(refresh_,70000);}
+    }catch(e){}
+    if(Date.now()-t0>1560000){clearInterval(iv);btn.disabled=false;btn.textContent='지금 재수집';}
+  },5000);
 }
 document.getElementById('pw').addEventListener('keydown',e=>{if(e.key==='Enter')unlock();});
 (function(){
